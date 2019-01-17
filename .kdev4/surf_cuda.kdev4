@@ -1,0 +1,22 @@
+[Buildset]
+BuildItems=@Variant(\x00\x00\x00\t\x00\x00\x00\x00\x01\x00\x00\x00\x0b\x00\x00\x00\x00\x01\x00\x00\x00\x12\x00s\x00u\x00r\x00f\x00_\x00c\x00u\x00d\x00a)
+
+[CMake]
+Build Directory Count=1
+Current Build Directory Index=0
+ProjectRootRelative=./
+
+[CMake][CMake Build Directory 0]
+Build Directory Path=file:///home/hbx/git/surf_cuda/build
+Build Type=Debug
+CMake Binary=file:///usr/local/bin/cmake
+CMake Executable=/usr/local/bin/cmake
+Environment Profile=default
+Extra Arguments=
+Install Directory=file:///usr/local
+Runtime=Host System
+
+[Defines And Includes][Compiler]
+Name=GCC
+Path=gcc
+Type=GCC

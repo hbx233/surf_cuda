@@ -1,0 +1,2 @@
+/usr/bin/ar qc libsurf.a  CMakeFiles/surf.dir/cuda_mat.cu.o
+/usr/bin/ranlib libsurf.a

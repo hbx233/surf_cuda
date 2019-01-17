@@ -1,0 +1,20 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/hbx/git/surf_cuda/test/main.cu
+iostream
+-
+stdlib.h
+-
+stdio.h
+-
+memory
+-
+cuda_runtime.h
+/home/hbx/git/surf_cuda/test/cuda_runtime.h
+
