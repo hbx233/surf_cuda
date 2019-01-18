@@ -137,6 +137,19 @@ main/fast:
 .PHONY : main/fast
 
 #=============================================================================
+# Target rules for targets named test_region_conv
+
+# Build rule for target.
+test_region_conv: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 test_region_conv
+.PHONY : test_region_conv
+
+# fast build rule for target.
+test_region_conv/fast:
+	$(MAKE) -f test/CMakeFiles/test_region_conv.dir/build.make test/CMakeFiles/test_region_conv.dir/build
+.PHONY : test_region_conv/fast
+
+#=============================================================================
 # Target rules for targets named cv_load
 
 # Build rule for target.
@@ -185,6 +198,7 @@ help:
 	@echo "... edit_cache"
 	@echo "... surf_cuda"
 	@echo "... main"
+	@echo "... test_region_conv"
 	@echo "... cv_load"
 	@echo "... test_cuda_mat"
 	@echo "... test_integral"

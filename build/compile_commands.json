@@ -16,6 +16,11 @@
 },
 {
   "directory": "/home/hbx/git/surf_cuda/build/test",
+  "command": "/usr/local/cuda/bin/nvcc   -I/home/hbx/git/surf_cuda/include -isystem=/opt/ros/kinetic/include/opencv-3.3.1-dev -isystem=/opt/ros/kinetic/include/opencv-3.3.1-dev/opencv  -g   -std=c++11 -x cu -c /home/hbx/git/surf_cuda/test/test_region_conv.cu -o CMakeFiles/test_region_conv.dir/test_region_conv.cu.o",
+  "file": "/home/hbx/git/surf_cuda/test/test_region_conv.cu"
+},
+{
+  "directory": "/home/hbx/git/surf_cuda/build/test",
   "command": "/usr/local/cuda/bin/nvcc   -I/home/hbx/git/surf_cuda/include -isystem=/opt/ros/kinetic/include/opencv-3.3.1-dev -isystem=/opt/ros/kinetic/include/opencv-3.3.1-dev/opencv  -g   -std=c++11 -x cu -c /home/hbx/git/surf_cuda/test/cv_load.cu -o CMakeFiles/cv_load.dir/cv_load.cu.o",
   "file": "/home/hbx/git/surf_cuda/test/cv_load.cu"
 },

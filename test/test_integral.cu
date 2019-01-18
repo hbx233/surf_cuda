@@ -6,8 +6,8 @@ using surf_cuda::SURF;
 using surf_cuda::CudaMat;
 
 int main(){
-  Mat mat = Mat::ones(10,20,CV_32F);
-  Mat mat_out = Mat::zeros(10,20,CV_32F);
+  Mat mat = Mat::ones(100,200,CV_32F);
+  Mat mat_out = Mat::zeros(100,200,CV_32F);
   CudaMat cuda_mat_in(mat);
   CudaMat cuda_mat_out(mat);
   //allocate two CudaMat

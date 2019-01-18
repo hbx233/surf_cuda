@@ -124,6 +124,7 @@ clean: src/CMakeFiles/surf_cuda.dir/clean
 
 # Convenience name for "all" pass in the directory.
 test/all: test/CMakeFiles/main.dir/all
+test/all: test/CMakeFiles/test_region_conv.dir/all
 test/all: test/CMakeFiles/cv_load.dir/all
 test/all: test/CMakeFiles/test_cuda_mat.dir/all
 test/all: test/CMakeFiles/test_integral.dir/all
@@ -132,6 +133,7 @@ test/all: test/CMakeFiles/test_integral.dir/all
 
 # Convenience name for "clean" pass in the directory.
 test/clean: test/CMakeFiles/main.dir/clean
+test/clean: test/CMakeFiles/test_region_conv.dir/clean
 test/clean: test/CMakeFiles/cv_load.dir/clean
 test/clean: test/CMakeFiles/test_cuda_mat.dir/clean
 test/clean: test/CMakeFiles/test_integral.dir/clean
@@ -177,6 +179,43 @@ test/CMakeFiles/main.dir/clean:
 
 # clean rule for target.
 clean: test/CMakeFiles/main.dir/clean
+
+.PHONY : clean
+
+#=============================================================================
+# Target rules for target test/CMakeFiles/test_region_conv.dir
+
+# All Build rule for target.
+test/CMakeFiles/test_region_conv.dir/all: src/CMakeFiles/surf_cuda.dir/all
+	$(MAKE) -f test/CMakeFiles/test_region_conv.dir/build.make test/CMakeFiles/test_region_conv.dir/depend
+	$(MAKE) -f test/CMakeFiles/test_region_conv.dir/build.make test/CMakeFiles/test_region_conv.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/hbx/git/surf_cuda/build/CMakeFiles --progress-num=16,17,18 "Built target test_region_conv"
+.PHONY : test/CMakeFiles/test_region_conv.dir/all
+
+# Include target in all.
+all: test/CMakeFiles/test_region_conv.dir/all
+
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+test/CMakeFiles/test_region_conv.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/hbx/git/surf_cuda/build/CMakeFiles 6
+	$(MAKE) -f CMakeFiles/Makefile2 test/CMakeFiles/test_region_conv.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/hbx/git/surf_cuda/build/CMakeFiles 0
+.PHONY : test/CMakeFiles/test_region_conv.dir/rule
+
+# Convenience name for target.
+test_region_conv: test/CMakeFiles/test_region_conv.dir/rule
+
+.PHONY : test_region_conv
+
+# clean rule for target.
+test/CMakeFiles/test_region_conv.dir/clean:
+	$(MAKE) -f test/CMakeFiles/test_region_conv.dir/build.make test/CMakeFiles/test_region_conv.dir/clean
+.PHONY : test/CMakeFiles/test_region_conv.dir/clean
+
+# clean rule for target.
+clean: test/CMakeFiles/test_region_conv.dir/clean
 
 .PHONY : clean
 

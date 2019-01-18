@@ -126,6 +126,21 @@ main/fast:
 .PHONY : main/fast
 
 # Convenience name for target.
+test/CMakeFiles/test_region_conv.dir/rule:
+	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f CMakeFiles/Makefile2 test/CMakeFiles/test_region_conv.dir/rule
+.PHONY : test/CMakeFiles/test_region_conv.dir/rule
+
+# Convenience name for target.
+test_region_conv: test/CMakeFiles/test_region_conv.dir/rule
+
+.PHONY : test_region_conv
+
+# fast build rule for target.
+test_region_conv/fast:
+	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f test/CMakeFiles/test_region_conv.dir/build.make test/CMakeFiles/test_region_conv.dir/build
+.PHONY : test_region_conv/fast
+
+# Convenience name for target.
 test/CMakeFiles/cv_load.dir/rule:
 	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f CMakeFiles/Makefile2 test/CMakeFiles/cv_load.dir/rule
 .PHONY : test/CMakeFiles/cv_load.dir/rule
@@ -278,6 +293,33 @@ test_integral.cu.s:
 	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f test/CMakeFiles/test_integral.dir/build.make test/CMakeFiles/test_integral.dir/test_integral.cu.s
 .PHONY : test_integral.cu.s
 
+test_region_conv.o: test_region_conv.cu.o
+
+.PHONY : test_region_conv.o
+
+# target to build an object file
+test_region_conv.cu.o:
+	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f test/CMakeFiles/test_region_conv.dir/build.make test/CMakeFiles/test_region_conv.dir/test_region_conv.cu.o
+.PHONY : test_region_conv.cu.o
+
+test_region_conv.i: test_region_conv.cu.i
+
+.PHONY : test_region_conv.i
+
+# target to preprocess a source file
+test_region_conv.cu.i:
+	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f test/CMakeFiles/test_region_conv.dir/build.make test/CMakeFiles/test_region_conv.dir/test_region_conv.cu.i
+.PHONY : test_region_conv.cu.i
+
+test_region_conv.s: test_region_conv.cu.s
+
+.PHONY : test_region_conv.s
+
+# target to generate assembly for a file
+test_region_conv.cu.s:
+	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f test/CMakeFiles/test_region_conv.dir/build.make test/CMakeFiles/test_region_conv.dir/test_region_conv.cu.s
+.PHONY : test_region_conv.cu.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -287,6 +329,7 @@ help:
 	@echo "... edit_cache"
 	@echo "... main"
 	@echo "... rebuild_cache"
+	@echo "... test_region_conv"
 	@echo "... cv_load"
 	@echo "... test_cuda_mat"
 	@echo "... test_integral"
@@ -302,6 +345,9 @@ help:
 	@echo "... test_integral.o"
 	@echo "... test_integral.i"
 	@echo "... test_integral.s"
+	@echo "... test_region_conv.o"
+	@echo "... test_region_conv.i"
+	@echo "... test_region_conv.s"
 .PHONY : help
 
 
