@@ -1,7 +1,7 @@
 #include "surf_cuda/surf.h"
 #include "surf_cuda/common.h"
 #include "surf_cuda/cuda_mat.h"
-#include "surf_cuda/util.h"
+#include "surf_cuda/cuda_util.cuh"
 using surf_cuda::SURF;
 using surf_cuda::CudaMat;
 

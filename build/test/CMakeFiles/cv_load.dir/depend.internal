@@ -4,6 +4,7 @@
 test/CMakeFiles/cv_load.dir/cv_load.cu.o
  ../include/surf_cuda/common.h
  ../include/surf_cuda/cuda_mat.h
+ ../include/surf_cuda/cuda_util.cuh
  /home/hbx/git/surf_cuda/test/cv_load.cu
  /opt/ros/kinetic/include/opencv-3.3.1-dev/opencv/cxcore.h
  /opt/ros/kinetic/include/opencv-3.3.1-dev/opencv2/calib3d.hpp

@@ -111,6 +111,36 @@ depend:
 .PHONY : depend
 
 # Convenience name for target.
+test/CMakeFiles/test_octave.dir/rule:
+	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f CMakeFiles/Makefile2 test/CMakeFiles/test_octave.dir/rule
+.PHONY : test/CMakeFiles/test_octave.dir/rule
+
+# Convenience name for target.
+test_octave: test/CMakeFiles/test_octave.dir/rule
+
+.PHONY : test_octave
+
+# fast build rule for target.
+test_octave/fast:
+	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f test/CMakeFiles/test_octave.dir/build.make test/CMakeFiles/test_octave.dir/build
+.PHONY : test_octave/fast
+
+# Convenience name for target.
+test/CMakeFiles/test_DoH.dir/rule:
+	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f CMakeFiles/Makefile2 test/CMakeFiles/test_DoH.dir/rule
+.PHONY : test/CMakeFiles/test_DoH.dir/rule
+
+# Convenience name for target.
+test_DoH: test/CMakeFiles/test_DoH.dir/rule
+
+.PHONY : test_DoH
+
+# fast build rule for target.
+test_DoH/fast:
+	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f test/CMakeFiles/test_DoH.dir/build.make test/CMakeFiles/test_DoH.dir/build
+.PHONY : test_DoH/fast
+
+# Convenience name for target.
 test/CMakeFiles/main.dir/rule:
 	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f CMakeFiles/Makefile2 test/CMakeFiles/main.dir/rule
 .PHONY : test/CMakeFiles/main.dir/rule
@@ -239,6 +269,33 @@ main.cu.s:
 	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f test/CMakeFiles/main.dir/build.make test/CMakeFiles/main.dir/main.cu.s
 .PHONY : main.cu.s
 
+test_DoH.o: test_DoH.cu.o
+
+.PHONY : test_DoH.o
+
+# target to build an object file
+test_DoH.cu.o:
+	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f test/CMakeFiles/test_DoH.dir/build.make test/CMakeFiles/test_DoH.dir/test_DoH.cu.o
+.PHONY : test_DoH.cu.o
+
+test_DoH.i: test_DoH.cu.i
+
+.PHONY : test_DoH.i
+
+# target to preprocess a source file
+test_DoH.cu.i:
+	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f test/CMakeFiles/test_DoH.dir/build.make test/CMakeFiles/test_DoH.dir/test_DoH.cu.i
+.PHONY : test_DoH.cu.i
+
+test_DoH.s: test_DoH.cu.s
+
+.PHONY : test_DoH.s
+
+# target to generate assembly for a file
+test_DoH.cu.s:
+	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f test/CMakeFiles/test_DoH.dir/build.make test/CMakeFiles/test_DoH.dir/test_DoH.cu.s
+.PHONY : test_DoH.cu.s
+
 test_cuda_mat.o: test_cuda_mat.cu.o
 
 .PHONY : test_cuda_mat.o
@@ -293,6 +350,33 @@ test_integral.cu.s:
 	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f test/CMakeFiles/test_integral.dir/build.make test/CMakeFiles/test_integral.dir/test_integral.cu.s
 .PHONY : test_integral.cu.s
 
+test_octave.o: test_octave.cu.o
+
+.PHONY : test_octave.o
+
+# target to build an object file
+test_octave.cu.o:
+	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f test/CMakeFiles/test_octave.dir/build.make test/CMakeFiles/test_octave.dir/test_octave.cu.o
+.PHONY : test_octave.cu.o
+
+test_octave.i: test_octave.cu.i
+
+.PHONY : test_octave.i
+
+# target to preprocess a source file
+test_octave.cu.i:
+	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f test/CMakeFiles/test_octave.dir/build.make test/CMakeFiles/test_octave.dir/test_octave.cu.i
+.PHONY : test_octave.cu.i
+
+test_octave.s: test_octave.cu.s
+
+.PHONY : test_octave.s
+
+# target to generate assembly for a file
+test_octave.cu.s:
+	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f test/CMakeFiles/test_octave.dir/build.make test/CMakeFiles/test_octave.dir/test_octave.cu.s
+.PHONY : test_octave.cu.s
+
 test_region_conv.o: test_region_conv.cu.o
 
 .PHONY : test_region_conv.o
@@ -327,6 +411,8 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... edit_cache"
+	@echo "... test_octave"
+	@echo "... test_DoH"
 	@echo "... main"
 	@echo "... rebuild_cache"
 	@echo "... test_region_conv"
@@ -339,12 +425,18 @@ help:
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... test_DoH.o"
+	@echo "... test_DoH.i"
+	@echo "... test_DoH.s"
 	@echo "... test_cuda_mat.o"
 	@echo "... test_cuda_mat.i"
 	@echo "... test_cuda_mat.s"
 	@echo "... test_integral.o"
 	@echo "... test_integral.i"
 	@echo "... test_integral.s"
+	@echo "... test_octave.o"
+	@echo "... test_octave.i"
+	@echo "... test_octave.s"
 	@echo "... test_region_conv.o"
 	@echo "... test_region_conv.i"
 	@echo "... test_region_conv.s"

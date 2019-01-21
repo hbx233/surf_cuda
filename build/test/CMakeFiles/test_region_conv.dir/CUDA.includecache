@@ -9,6 +9,8 @@
 ../include/surf_cuda/DoH_filter.h
 surf_cuda/common.h
 ../include/surf_cuda/surf_cuda/common.h
+surf_cuda/cuda_util.cuh
+../include/surf_cuda/surf_cuda/cuda_util.cuh
 
 ../include/surf_cuda/common.h
 vector
@@ -33,12 +35,30 @@ opencv2/highgui.hpp
 ../include/surf_cuda/cuda_mat.h
 surf_cuda/common.h
 ../include/surf_cuda/surf_cuda/common.h
+surf_cuda/cuda_util.cuh
+../include/surf_cuda/surf_cuda/cuda_util.cuh
+
+../include/surf_cuda/cuda_util.cuh
+surf_cuda/common.h
+../include/surf_cuda/surf_cuda/common.h
+
+../include/surf_cuda/octave.h
+surf_cuda/common.h
+../include/surf_cuda/surf_cuda/common.h
+surf_cuda/cuda_mat.h
+../include/surf_cuda/surf_cuda/cuda_mat.h
+surf_cuda/DoH_filter.h
+../include/surf_cuda/surf_cuda/DoH_filter.h
 
 ../include/surf_cuda/surf.h
 surf_cuda/common.h
 ../include/surf_cuda/surf_cuda/common.h
 surf_cuda/cuda_mat.h
 ../include/surf_cuda/surf_cuda/cuda_mat.h
+surf_cuda/DoH_filter.h
+../include/surf_cuda/surf_cuda/DoH_filter.h
+surf_cuda/octave.h
+../include/surf_cuda/surf_cuda/octave.h
 
 /home/hbx/git/surf_cuda/test/test_region_conv.cu
 surf_cuda/common.h

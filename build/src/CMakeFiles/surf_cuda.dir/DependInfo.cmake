@@ -5,6 +5,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CUDA
   "/home/hbx/git/surf_cuda/src/cuda_mat.cu" "/home/hbx/git/surf_cuda/build/src/CMakeFiles/surf_cuda.dir/cuda_mat.cu.o"
+  "/home/hbx/git/surf_cuda/src/octave.cu" "/home/hbx/git/surf_cuda/build/src/CMakeFiles/surf_cuda.dir/octave.cu.o"
   "/home/hbx/git/surf_cuda/src/surf.cu" "/home/hbx/git/surf_cuda/build/src/CMakeFiles/surf_cuda.dir/surf.cu.o"
   )
 set(CMAKE_CUDA_COMPILER_ID "NVIDIA")

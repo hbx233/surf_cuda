@@ -8,7 +8,8 @@ __global__ void compRowIntegral(float* mat_in, float* mat_out, size_t rows, size
         float* row_addr_out = (float*)((char*)mat_out + row_idx*pitch);
 	//compute integral along the row 
         float integral_cache;
-        for(size_t c=0;c<cols; c++){
+        //TODO: Add loop unrolling 
+	for(size_t c=0;c<cols; c++){
             if(c==0){
                 //initial value
                 integral_cache=row_addr_in[c];

@@ -45,7 +45,8 @@ int main(){
   cuda_mat_integral.readDeviceToMat_32F(mat_integral);
   cout<<mat_integral<<endl;
   //compute weighted region sum 
-  WeightedRegionIntegral wri(-4,-4,-2,-2,1);
+  //WeightedRegionIntegral wri(-4,-4,-2,-2,1);
+  WeightedRegionIntegral wri(2,2,4,4,1);
   dim3 block(32,1,1);
   dim3 grid(1,1,1);
   printf("rows: %i\n",cuda_mat_conv.rows());

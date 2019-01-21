@@ -83,19 +83,34 @@ src/CMakeFiles/surf_cuda.dir/surf.cu.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CUDA source to assembly CMakeFiles/surf_cuda.dir/surf.cu.s"
 	$(CMAKE_COMMAND) -E cmake_unimplemented_variable CMAKE_CUDA_CREATE_ASSEMBLY_SOURCE
 
+src/CMakeFiles/surf_cuda.dir/octave.cu.o: src/CMakeFiles/surf_cuda.dir/flags.make
+src/CMakeFiles/surf_cuda.dir/octave.cu.o: ../src/octave.cu
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hbx/git/surf_cuda/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CUDA object src/CMakeFiles/surf_cuda.dir/octave.cu.o"
+	cd /home/hbx/git/surf_cuda/build/src && /usr/local/cuda/bin/nvcc  $(CUDA_DEFINES) $(CUDA_INCLUDES) $(CUDA_FLAGS) -x cu -dc /home/hbx/git/surf_cuda/src/octave.cu -o CMakeFiles/surf_cuda.dir/octave.cu.o
+
+src/CMakeFiles/surf_cuda.dir/octave.cu.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CUDA source to CMakeFiles/surf_cuda.dir/octave.cu.i"
+	$(CMAKE_COMMAND) -E cmake_unimplemented_variable CMAKE_CUDA_CREATE_PREPROCESSED_SOURCE
+
+src/CMakeFiles/surf_cuda.dir/octave.cu.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CUDA source to assembly CMakeFiles/surf_cuda.dir/octave.cu.s"
+	$(CMAKE_COMMAND) -E cmake_unimplemented_variable CMAKE_CUDA_CREATE_ASSEMBLY_SOURCE
+
 # Object files for target surf_cuda
 surf_cuda_OBJECTS = \
 "CMakeFiles/surf_cuda.dir/cuda_mat.cu.o" \
-"CMakeFiles/surf_cuda.dir/surf.cu.o"
+"CMakeFiles/surf_cuda.dir/surf.cu.o" \
+"CMakeFiles/surf_cuda.dir/octave.cu.o"
 
 # External object files for target surf_cuda
 surf_cuda_EXTERNAL_OBJECTS =
 
 src/libsurf_cuda.a: src/CMakeFiles/surf_cuda.dir/cuda_mat.cu.o
 src/libsurf_cuda.a: src/CMakeFiles/surf_cuda.dir/surf.cu.o
+src/libsurf_cuda.a: src/CMakeFiles/surf_cuda.dir/octave.cu.o
 src/libsurf_cuda.a: src/CMakeFiles/surf_cuda.dir/build.make
 src/libsurf_cuda.a: src/CMakeFiles/surf_cuda.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/hbx/git/surf_cuda/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CUDA static library libsurf_cuda.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/hbx/git/surf_cuda/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CUDA static library libsurf_cuda.a"
 	cd /home/hbx/git/surf_cuda/build/src && $(CMAKE_COMMAND) -P CMakeFiles/surf_cuda.dir/cmake_clean_target.cmake
 	cd /home/hbx/git/surf_cuda/build/src && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/surf_cuda.dir/link.txt --verbose=$(VERBOSE)
 

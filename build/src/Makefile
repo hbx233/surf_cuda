@@ -152,6 +152,33 @@ cuda_mat.cu.s:
 	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f src/CMakeFiles/surf_cuda.dir/build.make src/CMakeFiles/surf_cuda.dir/cuda_mat.cu.s
 .PHONY : cuda_mat.cu.s
 
+octave.o: octave.cu.o
+
+.PHONY : octave.o
+
+# target to build an object file
+octave.cu.o:
+	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f src/CMakeFiles/surf_cuda.dir/build.make src/CMakeFiles/surf_cuda.dir/octave.cu.o
+.PHONY : octave.cu.o
+
+octave.i: octave.cu.i
+
+.PHONY : octave.i
+
+# target to preprocess a source file
+octave.cu.i:
+	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f src/CMakeFiles/surf_cuda.dir/build.make src/CMakeFiles/surf_cuda.dir/octave.cu.i
+.PHONY : octave.cu.i
+
+octave.s: octave.cu.s
+
+.PHONY : octave.s
+
+# target to generate assembly for a file
+octave.cu.s:
+	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f src/CMakeFiles/surf_cuda.dir/build.make src/CMakeFiles/surf_cuda.dir/octave.cu.s
+.PHONY : octave.cu.s
+
 surf.o: surf.cu.o
 
 .PHONY : surf.o
@@ -191,6 +218,9 @@ help:
 	@echo "... cuda_mat.o"
 	@echo "... cuda_mat.i"
 	@echo "... cuda_mat.s"
+	@echo "... octave.o"
+	@echo "... octave.i"
+	@echo "... octave.s"
 	@echo "... surf.o"
 	@echo "... surf.i"
 	@echo "... surf.s"

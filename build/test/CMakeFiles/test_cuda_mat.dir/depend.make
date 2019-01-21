@@ -3,7 +3,7 @@
 
 test/CMakeFiles/test_cuda_mat.dir/test_cuda_mat.cu.o: ../include/surf_cuda/common.h
 test/CMakeFiles/test_cuda_mat.dir/test_cuda_mat.cu.o: ../include/surf_cuda/cuda_mat.h
-test/CMakeFiles/test_cuda_mat.dir/test_cuda_mat.cu.o: ../include/surf_cuda/util.h
+test/CMakeFiles/test_cuda_mat.dir/test_cuda_mat.cu.o: ../include/surf_cuda/cuda_util.cuh
 test/CMakeFiles/test_cuda_mat.dir/test_cuda_mat.cu.o: ../test/test_cuda_mat.cu
 test/CMakeFiles/test_cuda_mat.dir/test_cuda_mat.cu.o: /opt/ros/kinetic/include/opencv-3.3.1-dev/opencv/cxcore.h
 test/CMakeFiles/test_cuda_mat.dir/test_cuda_mat.cu.o: /opt/ros/kinetic/include/opencv-3.3.1-dev/opencv2/calib3d.hpp

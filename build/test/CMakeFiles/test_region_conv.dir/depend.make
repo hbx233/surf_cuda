@@ -4,6 +4,8 @@
 test/CMakeFiles/test_region_conv.dir/test_region_conv.cu.o: ../include/surf_cuda/DoH_filter.h
 test/CMakeFiles/test_region_conv.dir/test_region_conv.cu.o: ../include/surf_cuda/common.h
 test/CMakeFiles/test_region_conv.dir/test_region_conv.cu.o: ../include/surf_cuda/cuda_mat.h
+test/CMakeFiles/test_region_conv.dir/test_region_conv.cu.o: ../include/surf_cuda/cuda_util.cuh
+test/CMakeFiles/test_region_conv.dir/test_region_conv.cu.o: ../include/surf_cuda/octave.h
 test/CMakeFiles/test_region_conv.dir/test_region_conv.cu.o: ../include/surf_cuda/surf.h
 test/CMakeFiles/test_region_conv.dir/test_region_conv.cu.o: ../test/test_region_conv.cu
 test/CMakeFiles/test_region_conv.dir/test_region_conv.cu.o: /opt/ros/kinetic/include/opencv-3.3.1-dev/opencv/cxcore.h

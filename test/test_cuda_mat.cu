@@ -1,6 +1,6 @@
 #include "surf_cuda/common.h"
 #include "surf_cuda/cuda_mat.h"
-#include "surf_cuda/util.h"
+#include "surf_cuda/cuda_util.cuh"
 
 int main(){
   //100 * 100 matrix
