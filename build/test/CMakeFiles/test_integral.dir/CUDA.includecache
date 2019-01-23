@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-../include/surf_cuda/DoH_filter.h
+../include/surf_cuda/DoH_filter.cuh
 surf_cuda/common.h
 ../include/surf_cuda/surf_cuda/common.h
 surf_cuda/cuda_util.cuh
@@ -24,6 +24,10 @@ string
 stdlib.h
 -
 stdio.h
+-
+assert.h
+-
+chrono
 -
 opencv2/core/core.hpp
 -
@@ -47,16 +51,16 @@ surf_cuda/common.h
 ../include/surf_cuda/surf_cuda/common.h
 surf_cuda/cuda_mat.h
 ../include/surf_cuda/surf_cuda/cuda_mat.h
-surf_cuda/DoH_filter.h
-../include/surf_cuda/surf_cuda/DoH_filter.h
+surf_cuda/DoH_filter.cuh
+../include/surf_cuda/surf_cuda/DoH_filter.cuh
 
 ../include/surf_cuda/surf.h
 surf_cuda/common.h
 ../include/surf_cuda/surf_cuda/common.h
 surf_cuda/cuda_mat.h
 ../include/surf_cuda/surf_cuda/cuda_mat.h
-surf_cuda/DoH_filter.h
-../include/surf_cuda/surf_cuda/DoH_filter.h
+surf_cuda/DoH_filter.cuh
+../include/surf_cuda/surf_cuda/DoH_filter.cuh
 surf_cuda/octave.h
 ../include/surf_cuda/surf_cuda/octave.h
 

@@ -89,7 +89,7 @@ src/preinstall:
 src/CMakeFiles/surf_cuda.dir/all:
 	$(MAKE) -f src/CMakeFiles/surf_cuda.dir/build.make src/CMakeFiles/surf_cuda.dir/depend
 	$(MAKE) -f src/CMakeFiles/surf_cuda.dir/build.make src/CMakeFiles/surf_cuda.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/hbx/git/surf_cuda/build/CMakeFiles --progress-num=7,8,9,10 "Built target surf_cuda"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/hbx/git/surf_cuda/build/CMakeFiles --progress-num=1,2,3 "Built target surf_cuda"
 .PHONY : src/CMakeFiles/surf_cuda.dir/all
 
 # Include target in all.
@@ -99,7 +99,7 @@ all: src/CMakeFiles/surf_cuda.dir/all
 
 # Build rule for subdir invocation for target.
 src/CMakeFiles/surf_cuda.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/hbx/git/surf_cuda/build/CMakeFiles 4
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/hbx/git/surf_cuda/build/CMakeFiles 3
 	$(MAKE) -f CMakeFiles/Makefile2 src/CMakeFiles/surf_cuda.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/hbx/git/surf_cuda/build/CMakeFiles 0
 .PHONY : src/CMakeFiles/surf_cuda.dir/rule
@@ -123,22 +123,14 @@ clean: src/CMakeFiles/surf_cuda.dir/clean
 # Directory level rules for directory test
 
 # Convenience name for "all" pass in the directory.
-test/all: test/CMakeFiles/test_octave.dir/all
 test/all: test/CMakeFiles/test_DoH.dir/all
-test/all: test/CMakeFiles/main.dir/all
-test/all: test/CMakeFiles/test_region_conv.dir/all
-test/all: test/CMakeFiles/cv_load.dir/all
 test/all: test/CMakeFiles/test_cuda_mat.dir/all
 test/all: test/CMakeFiles/test_integral.dir/all
 
 .PHONY : test/all
 
 # Convenience name for "clean" pass in the directory.
-test/clean: test/CMakeFiles/test_octave.dir/clean
 test/clean: test/CMakeFiles/test_DoH.dir/clean
-test/clean: test/CMakeFiles/main.dir/clean
-test/clean: test/CMakeFiles/test_region_conv.dir/clean
-test/clean: test/CMakeFiles/cv_load.dir/clean
 test/clean: test/CMakeFiles/test_cuda_mat.dir/clean
 test/clean: test/CMakeFiles/test_integral.dir/clean
 
@@ -150,50 +142,13 @@ test/preinstall:
 .PHONY : test/preinstall
 
 #=============================================================================
-# Target rules for target test/CMakeFiles/test_octave.dir
-
-# All Build rule for target.
-test/CMakeFiles/test_octave.dir/all: src/CMakeFiles/surf_cuda.dir/all
-	$(MAKE) -f test/CMakeFiles/test_octave.dir/build.make test/CMakeFiles/test_octave.dir/depend
-	$(MAKE) -f test/CMakeFiles/test_octave.dir/build.make test/CMakeFiles/test_octave.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/hbx/git/surf_cuda/build/CMakeFiles --progress-num=20,21,22 "Built target test_octave"
-.PHONY : test/CMakeFiles/test_octave.dir/all
-
-# Include target in all.
-all: test/CMakeFiles/test_octave.dir/all
-
-.PHONY : all
-
-# Build rule for subdir invocation for target.
-test/CMakeFiles/test_octave.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/hbx/git/surf_cuda/build/CMakeFiles 7
-	$(MAKE) -f CMakeFiles/Makefile2 test/CMakeFiles/test_octave.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/hbx/git/surf_cuda/build/CMakeFiles 0
-.PHONY : test/CMakeFiles/test_octave.dir/rule
-
-# Convenience name for target.
-test_octave: test/CMakeFiles/test_octave.dir/rule
-
-.PHONY : test_octave
-
-# clean rule for target.
-test/CMakeFiles/test_octave.dir/clean:
-	$(MAKE) -f test/CMakeFiles/test_octave.dir/build.make test/CMakeFiles/test_octave.dir/clean
-.PHONY : test/CMakeFiles/test_octave.dir/clean
-
-# clean rule for target.
-clean: test/CMakeFiles/test_octave.dir/clean
-
-.PHONY : clean
-
-#=============================================================================
 # Target rules for target test/CMakeFiles/test_DoH.dir
 
 # All Build rule for target.
 test/CMakeFiles/test_DoH.dir/all: src/CMakeFiles/surf_cuda.dir/all
 	$(MAKE) -f test/CMakeFiles/test_DoH.dir/build.make test/CMakeFiles/test_DoH.dir/depend
 	$(MAKE) -f test/CMakeFiles/test_DoH.dir/build.make test/CMakeFiles/test_DoH.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/hbx/git/surf_cuda/build/CMakeFiles --progress-num=11,12,13 "Built target test_DoH"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/hbx/git/surf_cuda/build/CMakeFiles --progress-num=4,5,6 "Built target test_DoH"
 .PHONY : test/CMakeFiles/test_DoH.dir/all
 
 # Include target in all.
@@ -203,7 +158,7 @@ all: test/CMakeFiles/test_DoH.dir/all
 
 # Build rule for subdir invocation for target.
 test/CMakeFiles/test_DoH.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/hbx/git/surf_cuda/build/CMakeFiles 7
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/hbx/git/surf_cuda/build/CMakeFiles 6
 	$(MAKE) -f CMakeFiles/Makefile2 test/CMakeFiles/test_DoH.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/hbx/git/surf_cuda/build/CMakeFiles 0
 .PHONY : test/CMakeFiles/test_DoH.dir/rule
@@ -224,124 +179,13 @@ clean: test/CMakeFiles/test_DoH.dir/clean
 .PHONY : clean
 
 #=============================================================================
-# Target rules for target test/CMakeFiles/main.dir
-
-# All Build rule for target.
-test/CMakeFiles/main.dir/all:
-	$(MAKE) -f test/CMakeFiles/main.dir/build.make test/CMakeFiles/main.dir/depend
-	$(MAKE) -f test/CMakeFiles/main.dir/build.make test/CMakeFiles/main.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/hbx/git/surf_cuda/build/CMakeFiles --progress-num=4,5,6 "Built target main"
-.PHONY : test/CMakeFiles/main.dir/all
-
-# Include target in all.
-all: test/CMakeFiles/main.dir/all
-
-.PHONY : all
-
-# Build rule for subdir invocation for target.
-test/CMakeFiles/main.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/hbx/git/surf_cuda/build/CMakeFiles 3
-	$(MAKE) -f CMakeFiles/Makefile2 test/CMakeFiles/main.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/hbx/git/surf_cuda/build/CMakeFiles 0
-.PHONY : test/CMakeFiles/main.dir/rule
-
-# Convenience name for target.
-main: test/CMakeFiles/main.dir/rule
-
-.PHONY : main
-
-# clean rule for target.
-test/CMakeFiles/main.dir/clean:
-	$(MAKE) -f test/CMakeFiles/main.dir/build.make test/CMakeFiles/main.dir/clean
-.PHONY : test/CMakeFiles/main.dir/clean
-
-# clean rule for target.
-clean: test/CMakeFiles/main.dir/clean
-
-.PHONY : clean
-
-#=============================================================================
-# Target rules for target test/CMakeFiles/test_region_conv.dir
-
-# All Build rule for target.
-test/CMakeFiles/test_region_conv.dir/all: src/CMakeFiles/surf_cuda.dir/all
-	$(MAKE) -f test/CMakeFiles/test_region_conv.dir/build.make test/CMakeFiles/test_region_conv.dir/depend
-	$(MAKE) -f test/CMakeFiles/test_region_conv.dir/build.make test/CMakeFiles/test_region_conv.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/hbx/git/surf_cuda/build/CMakeFiles --progress-num=23,24,25 "Built target test_region_conv"
-.PHONY : test/CMakeFiles/test_region_conv.dir/all
-
-# Include target in all.
-all: test/CMakeFiles/test_region_conv.dir/all
-
-.PHONY : all
-
-# Build rule for subdir invocation for target.
-test/CMakeFiles/test_region_conv.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/hbx/git/surf_cuda/build/CMakeFiles 7
-	$(MAKE) -f CMakeFiles/Makefile2 test/CMakeFiles/test_region_conv.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/hbx/git/surf_cuda/build/CMakeFiles 0
-.PHONY : test/CMakeFiles/test_region_conv.dir/rule
-
-# Convenience name for target.
-test_region_conv: test/CMakeFiles/test_region_conv.dir/rule
-
-.PHONY : test_region_conv
-
-# clean rule for target.
-test/CMakeFiles/test_region_conv.dir/clean:
-	$(MAKE) -f test/CMakeFiles/test_region_conv.dir/build.make test/CMakeFiles/test_region_conv.dir/clean
-.PHONY : test/CMakeFiles/test_region_conv.dir/clean
-
-# clean rule for target.
-clean: test/CMakeFiles/test_region_conv.dir/clean
-
-.PHONY : clean
-
-#=============================================================================
-# Target rules for target test/CMakeFiles/cv_load.dir
-
-# All Build rule for target.
-test/CMakeFiles/cv_load.dir/all:
-	$(MAKE) -f test/CMakeFiles/cv_load.dir/build.make test/CMakeFiles/cv_load.dir/depend
-	$(MAKE) -f test/CMakeFiles/cv_load.dir/build.make test/CMakeFiles/cv_load.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/hbx/git/surf_cuda/build/CMakeFiles --progress-num=1,2,3 "Built target cv_load"
-.PHONY : test/CMakeFiles/cv_load.dir/all
-
-# Include target in all.
-all: test/CMakeFiles/cv_load.dir/all
-
-.PHONY : all
-
-# Build rule for subdir invocation for target.
-test/CMakeFiles/cv_load.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/hbx/git/surf_cuda/build/CMakeFiles 3
-	$(MAKE) -f CMakeFiles/Makefile2 test/CMakeFiles/cv_load.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/hbx/git/surf_cuda/build/CMakeFiles 0
-.PHONY : test/CMakeFiles/cv_load.dir/rule
-
-# Convenience name for target.
-cv_load: test/CMakeFiles/cv_load.dir/rule
-
-.PHONY : cv_load
-
-# clean rule for target.
-test/CMakeFiles/cv_load.dir/clean:
-	$(MAKE) -f test/CMakeFiles/cv_load.dir/build.make test/CMakeFiles/cv_load.dir/clean
-.PHONY : test/CMakeFiles/cv_load.dir/clean
-
-# clean rule for target.
-clean: test/CMakeFiles/cv_load.dir/clean
-
-.PHONY : clean
-
-#=============================================================================
 # Target rules for target test/CMakeFiles/test_cuda_mat.dir
 
 # All Build rule for target.
 test/CMakeFiles/test_cuda_mat.dir/all: src/CMakeFiles/surf_cuda.dir/all
 	$(MAKE) -f test/CMakeFiles/test_cuda_mat.dir/build.make test/CMakeFiles/test_cuda_mat.dir/depend
 	$(MAKE) -f test/CMakeFiles/test_cuda_mat.dir/build.make test/CMakeFiles/test_cuda_mat.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/hbx/git/surf_cuda/build/CMakeFiles --progress-num=14,15,16 "Built target test_cuda_mat"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/hbx/git/surf_cuda/build/CMakeFiles --progress-num=7,8,9 "Built target test_cuda_mat"
 .PHONY : test/CMakeFiles/test_cuda_mat.dir/all
 
 # Include target in all.
@@ -351,7 +195,7 @@ all: test/CMakeFiles/test_cuda_mat.dir/all
 
 # Build rule for subdir invocation for target.
 test/CMakeFiles/test_cuda_mat.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/hbx/git/surf_cuda/build/CMakeFiles 7
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/hbx/git/surf_cuda/build/CMakeFiles 6
 	$(MAKE) -f CMakeFiles/Makefile2 test/CMakeFiles/test_cuda_mat.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/hbx/git/surf_cuda/build/CMakeFiles 0
 .PHONY : test/CMakeFiles/test_cuda_mat.dir/rule
@@ -378,7 +222,7 @@ clean: test/CMakeFiles/test_cuda_mat.dir/clean
 test/CMakeFiles/test_integral.dir/all: src/CMakeFiles/surf_cuda.dir/all
 	$(MAKE) -f test/CMakeFiles/test_integral.dir/build.make test/CMakeFiles/test_integral.dir/depend
 	$(MAKE) -f test/CMakeFiles/test_integral.dir/build.make test/CMakeFiles/test_integral.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/hbx/git/surf_cuda/build/CMakeFiles --progress-num=17,18,19 "Built target test_integral"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/hbx/git/surf_cuda/build/CMakeFiles --progress-num=10,11,12 "Built target test_integral"
 .PHONY : test/CMakeFiles/test_integral.dir/all
 
 # Include target in all.
@@ -388,7 +232,7 @@ all: test/CMakeFiles/test_integral.dir/all
 
 # Build rule for subdir invocation for target.
 test/CMakeFiles/test_integral.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/hbx/git/surf_cuda/build/CMakeFiles 7
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/hbx/git/surf_cuda/build/CMakeFiles 6
 	$(MAKE) -f CMakeFiles/Makefile2 test/CMakeFiles/test_integral.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/hbx/git/surf_cuda/build/CMakeFiles 0
 .PHONY : test/CMakeFiles/test_integral.dir/rule

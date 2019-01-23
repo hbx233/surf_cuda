@@ -9,6 +9,7 @@ namespace surf_cuda{
  * unified weight in the whole region \
  * This is the basic component of DoH filter 
  */
+template <typename T>
 struct WeightedRegionIntegral{
   //integral region's top-left and bottom-right pixel's row and column offset 
   //convolution weights are the same number for one region
@@ -18,12 +19,12 @@ struct WeightedRegionIntegral{
   int row_offset_2;//bottom-right
   int col_offset_2;
   //integral weight 
-  float weight;
+  T weight;
   //constructor
-  WeightedRegionIntegral(int row_ofs_1, int col_ofs_1, int row_ofs_2, int col_ofs_2, float w)
+  WeightedRegionIntegral(int row_ofs_1, int col_ofs_1, int row_ofs_2, int col_ofs_2, T w)
   : row_offset_1(row_ofs_1),col_offset_1(col_ofs_1), row_offset_2(row_ofs_2), col_offset_2(col_ofs_2), weight(w)
   {};
-  WeightedRegionIntegral(float w):weight(w),row_offset_1(0),col_offset_1(0),row_offset_2(0),col_offset_2(0){};
+  WeightedRegionIntegral(T w):weight(w),row_offset_1(0),col_offset_1(0),row_offset_2(0),col_offset_2(0){};
   WeightedRegionIntegral():weight(0),row_offset_1(0),col_offset_1(0),row_offset_2(0),col_offset_2(0){};
   void setOffsets(int row_ofs_1, int col_ofs_1, int row_ofs_2, int col_ofs_2){
     row_offset_1 = row_ofs_1; col_offset_1 = col_ofs_1;
@@ -47,7 +48,7 @@ struct WeightedRegionIntegral{
    * @param cols total columns of integral_mat
    * @return: the weighted sum (convolution with uniform weight)
    */
-  __device__ float operator()(float* integral_mat, const size_t& pitch, const int& row_c, const int& col_c, const int& rows, const int& cols) const{
+  __device__ T operator()(unsigned char* integral_mat, const size_t& pitch_bytes, const int& row_c, const int& col_c, const int& rows, const int& cols) const{
     //compute row address
     //get intersection of union to avoid exceeding the image region
     //top-left corner of intersection of integral image and region
@@ -62,9 +63,9 @@ struct WeightedRegionIntegral{
     if(r1<=r2 && c1<=c2){
       //printf("[CUDA] [Integral CONV] Has intesection\n");
       //bottom-right pixel's row address
-      float* row_addr_2 = (float*)((char*)integral_mat + r2*pitch);
+      T* row_addr_2 = (T*)(integral_mat + r2*pitch_bytes);
       //top-left pixel's previous pixel's row address
-      float* row_addr_1=NULL;
+      T* row_addr_1=NULL;
       if(r1==0){
         //row_addr_1 = integral_mat;
         if(c1==0){
@@ -77,7 +78,7 @@ struct WeightedRegionIntegral{
 	  return weight * (row_addr_2[c2] - row_addr_2[c1-1]);
         }
       } else{
-        row_addr_1 = (float*)((char*)integral_mat + (r1-1)*pitch);
+        row_addr_1 = (T*)(integral_mat + (r1-1)*pitch_bytes);
         if(c1==0){
 	  //top-left is (r1,0)
 	  return weight * (row_addr_2[c2] - row_addr_1[c2]);
@@ -97,11 +98,12 @@ struct WeightedRegionIntegral{
  *@brief The Box Filter which approximate second order Gaussian derivative in x direction
  */
 //Question: Can the Following BoxFilters be implemented with polymorphysim?
+template <typename T>
 struct BoxFilter_xx{
   int size;
-  WeightedRegionIntegral wri_1;
-  WeightedRegionIntegral wri_2;
-  WeightedRegionIntegral wri_3;
+  WeightedRegionIntegral<T> wri_1;
+  WeightedRegionIntegral<T> wri_2;
+  WeightedRegionIntegral<T> wri_3;
   /*!@brief initialize the BoxFilter with certain size, then use the size to determain the location and size \
    * of WeightedRegionIntegral that being used to approximate Gaussian second derivative filter,
    * For mory information, please check the original SURF paper 
@@ -127,21 +129,22 @@ struct BoxFilter_xx{
    * @param cols total columns of integral_mat
    * @return: the convolution of Approximated Gaussian second derivative with image, at pixel (row_c,col_c)
    */
-  __device__ float operator()(float* integral_mat, size_t pitch, int row_c, int col_c, int rows, int cols){
-    return wri_1(integral_mat,pitch,row_c,col_c,rows,cols) + 
-	     wri_2(integral_mat,pitch,row_c,col_c,rows,cols) +
-	       wri_3(integral_mat,pitch,row_c,col_c,rows,cols);  
+  __device__ T operator()(unsigned char* integral_mat, size_t pitch_bytes, int row_c, int col_c, int rows, int cols) const{
+    return wri_1(integral_mat,pitch_bytes,row_c,col_c,rows,cols) + 
+	     wri_2(integral_mat,pitch_bytes,row_c,col_c,rows,cols) +
+	       wri_3(integral_mat,pitch_bytes,row_c,col_c,rows,cols);  
   };
 };
 
 /*!
  *@brief The Box Filter which approximate second order Gaussian derivative in y direction
  */
+template <typename T>
 struct BoxFilter_yy{
   int size;
-  WeightedRegionIntegral wri_1;
-  WeightedRegionIntegral wri_2;
-  WeightedRegionIntegral wri_3;
+  WeightedRegionIntegral<T> wri_1;
+  WeightedRegionIntegral<T> wri_2;
+  WeightedRegionIntegral<T> wri_3;
   BoxFilter_yy(int s):size(s),wri_1(1),wri_2(-2),wri_3(1){
     if(size<9){
       fprintf(stderr,"[CUDA] [Filter] Filter size must greater than 9");
@@ -153,10 +156,10 @@ struct BoxFilter_yy{
       wri_3.setOffsets(-(size/3-1),  (size+3)/6, size/3-1,  (size-1)/2 );
     }
   };
-  __device__ float operator()(float* integral_mat, size_t pitch, int row_c, int col_c, int rows, int cols){
-    return wri_1(integral_mat,pitch,row_c,col_c,rows,cols) + 
-	     wri_2(integral_mat,pitch,row_c,col_c,rows,cols) +
-	       wri_3(integral_mat,pitch,row_c,col_c,rows,cols);  
+  __device__ T operator()(unsigned char* integral_mat, size_t pitch_bytes, int row_c, int col_c, int rows, int cols) const{
+    return wri_1(integral_mat,pitch_bytes,row_c,col_c,rows,cols) + 
+	     wri_2(integral_mat,pitch_bytes,row_c,col_c,rows,cols) +
+	       wri_3(integral_mat,pitch_bytes,row_c,col_c,rows,cols);  
   };
   
 };
@@ -164,12 +167,13 @@ struct BoxFilter_yy{
 /*!
  *@brief The Box Filter which approximate second order Gaussian derivative in xy direction, use the same one  for yx direction
  */
+template <typename T>
 struct BoxFilter_xy{
   int size;
-  WeightedRegionIntegral wri_1;
-  WeightedRegionIntegral wri_2;
-  WeightedRegionIntegral wri_3;
-  WeightedRegionIntegral wri_4;
+  WeightedRegionIntegral<T> wri_1;
+  WeightedRegionIntegral<T> wri_2;
+  WeightedRegionIntegral<T> wri_3;
+  WeightedRegionIntegral<T> wri_4;
   BoxFilter_xy(int s):size(s),wri_1(1),wri_2(-1),wri_3(-1), wri_4(1){
     if(size<9){
       fprintf(stderr,"[CUDA] [Filter] Filter size must greater than 9");
@@ -181,11 +185,11 @@ struct BoxFilter_xy{
       wri_4.setOffsets( 1       ,  1       , (size/3), (size/3));
     }
   }
-  __device__ float operator()(float* integral_mat, size_t pitch, int row_c, int col_c, int rows, int cols){
-    return wri_1(integral_mat,pitch,row_c,col_c,rows,cols) + 
-	     wri_2(integral_mat,pitch,row_c,col_c,rows,cols) +
-		wri_3(integral_mat,pitch,row_c,col_c,rows,cols) +  
-		  wri_4(integral_mat,pitch,row_c,col_c,rows,cols);  
+  __device__ T operator()(unsigned char* integral_mat, size_t pitch_bytes, int row_c, int col_c, int rows, int cols) const{
+    return wri_1(integral_mat,pitch_bytes,row_c,col_c,rows,cols) + 
+	     wri_2(integral_mat,pitch_bytes,row_c,col_c,rows,cols) +
+		wri_3(integral_mat,pitch_bytes,row_c,col_c,rows,cols) +  
+		  wri_4(integral_mat,pitch_bytes,row_c,col_c,rows,cols);  
   };
 };
 /*!
@@ -194,12 +198,13 @@ struct BoxFilter_xy{
  * then compute the weighted determinant of Hessian matrix
  */
 struct DoHFilter{
+  //weight to calculate determinant 
   float weight{0.9};
   //size of all the BoxFilters 
   int size;
-  BoxFilter_xx box_filter_xx;
-  BoxFilter_yy box_filter_yy;
-  BoxFilter_xy box_filter_xy;
+  BoxFilter_xx<int> box_filter_xx;
+  BoxFilter_yy<int> box_filter_yy;
+  BoxFilter_xy<int> box_filter_xy;
   DoHFilter(int s): size(s),box_filter_xx(s),box_filter_yy(s),box_filter_xy(s){}
   
   /*!
@@ -212,10 +217,10 @@ struct DoHFilter{
    * @param cols total columns of integral_mat
    * @return: the Determinant of Hessian response of pixel at (row_c, col_c)
    */
-  __device__ float operator()(float* integral_mat, size_t pitch, int row_c, int col_c, int rows, int cols){
-    return (box_filter_xx(integral_mat, pitch, row_c, col_c, rows, cols) * 
-	      box_filter_yy(integral_mat, pitch, row_c, col_c, rows, cols) - 
-		 powf(weight *  box_filter_xy(integral_mat, pitch, row_c, col_c, rows, cols),2))/(float)(size*size);
+  __device__ float operator()(unsigned char* integral_mat, size_t pitch_bytes, int row_c, int col_c, int rows, int cols) const{
+    return ((float)box_filter_xx(integral_mat, pitch_bytes, row_c, col_c, rows, cols) * 
+	      (float)box_filter_yy(integral_mat, pitch_bytes, row_c, col_c, rows, cols) - 
+		 powf(weight *  (float)box_filter_xy(integral_mat, pitch_bytes, row_c, col_c, rows, cols),2))/(float)(size*size);
   };
 };
 

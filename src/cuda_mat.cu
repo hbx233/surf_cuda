@@ -1,41 +1,56 @@
 #include "surf_cuda/cuda_mat.h"
 
 namespace surf_cuda{
-CudaMat::CudaMat(const int& rows, const int& cols):rows_(rows),cols_(cols),internalAllocated_(false),data(NULL)
-{}
 
-
-CudaMat::CudaMat(const Mat& mat):cols_(mat.cols),rows_(mat.rows),internalAllocated_(false),data(NULL)
-{}
-
-
-CudaMat::~CudaMat()
+void CudaMat::allocate()
 {
-  if(internalAllocated_){
-    cudaFree(data);
+  cudaError_t err;
+  bool leagal_type=true;
+  switch(type_){
+    //8bit unsigned char 
+    case CV_8U:
+      err = CudaSafeCall(cudaMallocPitch((void**)&data,&pitch_bytes_,cols_*sizeof(unsigned char),rows_));
+      depth_ = sizeof(unsigned char);
+      elemSize_ = depth_;
+      break;
+    case CV_32S:
+      err = CudaSafeCall(cudaMallocPitch((void**)&data,&pitch_bytes_,cols_*sizeof(int),rows_));
+      depth_ = sizeof(int);
+      elemSize_ = depth_;
+      break;
+    case CV_32F:
+      err = CudaSafeCall(cudaMallocPitch((void**)&data,&pitch_bytes_,cols_*sizeof(float),rows_));
+      depth_ = sizeof(float);
+      elemSize_ = depth_;
+      break;
+    case CV_64F:
+      err = CudaSafeCall(cudaMallocPitch((void**)&data,&pitch_bytes_,cols_*sizeof(double),rows_));
+      depth_ = sizeof(double);
+      elemSize_ = depth_;
+      break;
+    default:
+      //TODO: Error handling 
+      fprintf(stderr,"Unsupported depth");
+      leagal_type=false;
+      exit(-1);
+      break;
   }
-}
-
-
-void CudaMat::allocate(){
-  //allocate 2D memory 
-  cudaError_t err = CudaSafeCall(cudaMallocPitch(&data,&pitch_,cols_*sizeof(float),rows_));
-  if(err==cudaSuccess){
+  if(err==cudaSuccess && leagal_type==true){
     internalAllocated_ = true;
   }
 }
 
 
-void CudaMat::writeDevice(float* hostmem, size_t hostpitch, int width, int height)
+void CudaMat::writeDevice(void* hostmem, size_t hostpitch_bytes, int width, int height)
 {
   if(data==NULL){
-    printf("[CUDA] [Write Device], data not allocated\n");
+    fprintf(stderr,"[CUDA] [Write Device], data not allocated\n");
     return;
   }
   if(width==cols_ && height==rows_){
-    cudaError_t err = CudaSafeCall(cudaMemcpy2D(data, pitch_, hostmem, hostpitch, width*sizeof(float), height, cudaMemcpyHostToDevice));
+    cudaError_t err = CudaSafeCall(cudaMemcpy2D((void*)data, pitch_bytes_, (void*)hostmem, hostpitch_bytes, width*elemSize_, height, cudaMemcpyHostToDevice));
     if(err==cudaSuccess){
-      printf("[CUDA] Wrote %i bytes data to Device\n", width*height*sizeof(float));
+      printf("[CUDA] Wrote %i bytes data to Device\n", width*height*elemSize_);
     } 
   } else{
     fprintf(stderr,"[CUDA] [Write Device] Dimension of Host Source Memory and Device Memory do not Match\n");
@@ -44,27 +59,15 @@ void CudaMat::writeDevice(float* hostmem, size_t hostpitch, int width, int heigh
   }
 }
 
-void CudaMat::writeDeviceFromMat_32F(const Mat& mat){
-  //check the data type of Mat
-  if(mat.type()!=CV_32F){
-    printf("[CUDA] [Write Device] Input cv::Mat must of type CV_32F");
+void CudaMat::readDevice(void* hostmem, size_t hostpitch_bytes, int width, int height){
+  if(data==NULL){
+    fprintf(stderr,"[CUDA] [Read Device], data not allocated\n");
     return;
-  } else{
-    if(mat.isContinuous()==true){
-      writeDevice((float*)mat.data,mat.cols*sizeof(float),mat.cols,mat.rows);
-    } else{
-      writeDevice((float*)mat.data,mat.step,mat.cols,mat.rows);
-    }
   }
-}
-
-
-void CudaMat::readDevice(float* hostmem, size_t hostpitch, int width, int height)
-{
   if(width==cols_ && height==rows_){
-    cudaError_t err = CudaSafeCall(cudaMemcpy2D(hostmem,hostpitch, data, pitch_, width*sizeof(float),height, cudaMemcpyDeviceToHost));
+    cudaError_t err = CudaSafeCall(cudaMemcpy2D((void*)hostmem,hostpitch_bytes, (void*)data, pitch_bytes_, width*elemSize_,height, cudaMemcpyDeviceToHost));
     if(err == cudaSuccess){
-      printf("[CUDA] Read %i bytes data from Device\n", width*height*sizeof(float));
+      printf("[CUDA] Read %i bytes data from Device\n", width*height*elemSize_);
     }
   } else{
     fprintf(stderr,"[CUDA] [Read Device] Dimension of Device Source Memory and Source Memory do not Match\n");
@@ -74,19 +77,26 @@ void CudaMat::readDevice(float* hostmem, size_t hostpitch, int width, int height
   }
 }
 
-void CudaMat::readDeviceToMat_32F(const Mat& mat){
-  if(mat.type()!=CV_32F){
-    printf("[CUDA] [Write Device] Input cv::Mat must of type CV_32F");
-    return;
+void CudaMat::copyFromMat(const Mat& mat)
+{
+  if(mat.type()==type_){
+    writeDevice((void*)mat.data, mat.step[0], mat.cols, mat.rows);
   } else{
-    if(mat.isContinuous()==true){
-      readDevice((float*)mat.data,mat.cols*sizeof(float),mat.cols,mat.rows);
-    } else{
-      readDevice((float*)mat.data,mat.step,mat.cols,mat.rows);
-    }
+    fprintf(stderr, "[CUDA] [Write Device] Mat type not compatible");
+    exit(-1);
   }
-  
 }
+void CudaMat::copyToMat(Mat& mat)
+{
+  if(mat.type()==type_){
+    mat = Mat(rows_, cols_, type_);
+    readDevice((void*)mat.data, mat.step[0], mat.cols, mat.rows);
+  } else{
+    fprintf(stderr, "[CUDA] [Read device] Mat type not compatible");
+  }
+}
+
+
 
 __host__ __device__ const int CudaMat::rows() const{
   return rows_;
@@ -94,7 +104,16 @@ __host__ __device__ const int CudaMat::rows() const{
 __host__ __device__ const int CudaMat::cols() const{
   return cols_;
 }
-__host__ __device__ const size_t CudaMat::pitch() const{
-  return pitch_;
+__host__ __device__ const size_t CudaMat::pitch_bytes() const{
+  return pitch_bytes_;
+}
+__host__ __device__ const int CudaMat::depth() const{
+  return depth_;
+}
+__host__ __device__ const int CudaMat::type() const{
+  return type_;
+}
+__host__ __device__ const int CudaMat::elemSize() const{
+  return elemSize_;
 }
 }

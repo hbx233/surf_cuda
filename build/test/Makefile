@@ -56,17 +56,6 @@ CMAKE_BINARY_DIR = /home/hbx/git/surf_cuda/build
 #=============================================================================
 # Targets provided globally by CMake.
 
-# Special rule for the target edit_cache
-edit_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."
-	/usr/local/bin/ccmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
-.PHONY : edit_cache
-
-# Special rule for the target edit_cache
-edit_cache/fast: edit_cache
-
-.PHONY : edit_cache/fast
-
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
@@ -77,6 +66,17 @@ rebuild_cache:
 rebuild_cache/fast: rebuild_cache
 
 .PHONY : rebuild_cache/fast
+
+# Special rule for the target edit_cache
+edit_cache:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."
+	/usr/local/bin/ccmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+.PHONY : edit_cache
+
+# Special rule for the target edit_cache
+edit_cache/fast: edit_cache
+
+.PHONY : edit_cache/fast
 
 # The main all target
 all: cmake_check_build_system
@@ -111,21 +111,6 @@ depend:
 .PHONY : depend
 
 # Convenience name for target.
-test/CMakeFiles/test_octave.dir/rule:
-	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f CMakeFiles/Makefile2 test/CMakeFiles/test_octave.dir/rule
-.PHONY : test/CMakeFiles/test_octave.dir/rule
-
-# Convenience name for target.
-test_octave: test/CMakeFiles/test_octave.dir/rule
-
-.PHONY : test_octave
-
-# fast build rule for target.
-test_octave/fast:
-	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f test/CMakeFiles/test_octave.dir/build.make test/CMakeFiles/test_octave.dir/build
-.PHONY : test_octave/fast
-
-# Convenience name for target.
 test/CMakeFiles/test_DoH.dir/rule:
 	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f CMakeFiles/Makefile2 test/CMakeFiles/test_DoH.dir/rule
 .PHONY : test/CMakeFiles/test_DoH.dir/rule
@@ -139,51 +124,6 @@ test_DoH: test/CMakeFiles/test_DoH.dir/rule
 test_DoH/fast:
 	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f test/CMakeFiles/test_DoH.dir/build.make test/CMakeFiles/test_DoH.dir/build
 .PHONY : test_DoH/fast
-
-# Convenience name for target.
-test/CMakeFiles/main.dir/rule:
-	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f CMakeFiles/Makefile2 test/CMakeFiles/main.dir/rule
-.PHONY : test/CMakeFiles/main.dir/rule
-
-# Convenience name for target.
-main: test/CMakeFiles/main.dir/rule
-
-.PHONY : main
-
-# fast build rule for target.
-main/fast:
-	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f test/CMakeFiles/main.dir/build.make test/CMakeFiles/main.dir/build
-.PHONY : main/fast
-
-# Convenience name for target.
-test/CMakeFiles/test_region_conv.dir/rule:
-	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f CMakeFiles/Makefile2 test/CMakeFiles/test_region_conv.dir/rule
-.PHONY : test/CMakeFiles/test_region_conv.dir/rule
-
-# Convenience name for target.
-test_region_conv: test/CMakeFiles/test_region_conv.dir/rule
-
-.PHONY : test_region_conv
-
-# fast build rule for target.
-test_region_conv/fast:
-	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f test/CMakeFiles/test_region_conv.dir/build.make test/CMakeFiles/test_region_conv.dir/build
-.PHONY : test_region_conv/fast
-
-# Convenience name for target.
-test/CMakeFiles/cv_load.dir/rule:
-	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f CMakeFiles/Makefile2 test/CMakeFiles/cv_load.dir/rule
-.PHONY : test/CMakeFiles/cv_load.dir/rule
-
-# Convenience name for target.
-cv_load: test/CMakeFiles/cv_load.dir/rule
-
-.PHONY : cv_load
-
-# fast build rule for target.
-cv_load/fast:
-	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f test/CMakeFiles/cv_load.dir/build.make test/CMakeFiles/cv_load.dir/build
-.PHONY : cv_load/fast
 
 # Convenience name for target.
 test/CMakeFiles/test_cuda_mat.dir/rule:
@@ -214,60 +154,6 @@ test_integral: test/CMakeFiles/test_integral.dir/rule
 test_integral/fast:
 	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f test/CMakeFiles/test_integral.dir/build.make test/CMakeFiles/test_integral.dir/build
 .PHONY : test_integral/fast
-
-cv_load.o: cv_load.cu.o
-
-.PHONY : cv_load.o
-
-# target to build an object file
-cv_load.cu.o:
-	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f test/CMakeFiles/cv_load.dir/build.make test/CMakeFiles/cv_load.dir/cv_load.cu.o
-.PHONY : cv_load.cu.o
-
-cv_load.i: cv_load.cu.i
-
-.PHONY : cv_load.i
-
-# target to preprocess a source file
-cv_load.cu.i:
-	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f test/CMakeFiles/cv_load.dir/build.make test/CMakeFiles/cv_load.dir/cv_load.cu.i
-.PHONY : cv_load.cu.i
-
-cv_load.s: cv_load.cu.s
-
-.PHONY : cv_load.s
-
-# target to generate assembly for a file
-cv_load.cu.s:
-	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f test/CMakeFiles/cv_load.dir/build.make test/CMakeFiles/cv_load.dir/cv_load.cu.s
-.PHONY : cv_load.cu.s
-
-main.o: main.cu.o
-
-.PHONY : main.o
-
-# target to build an object file
-main.cu.o:
-	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f test/CMakeFiles/main.dir/build.make test/CMakeFiles/main.dir/main.cu.o
-.PHONY : main.cu.o
-
-main.i: main.cu.i
-
-.PHONY : main.i
-
-# target to preprocess a source file
-main.cu.i:
-	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f test/CMakeFiles/main.dir/build.make test/CMakeFiles/main.dir/main.cu.i
-.PHONY : main.cu.i
-
-main.s: main.cu.s
-
-.PHONY : main.s
-
-# target to generate assembly for a file
-main.cu.s:
-	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f test/CMakeFiles/main.dir/build.make test/CMakeFiles/main.dir/main.cu.s
-.PHONY : main.cu.s
 
 test_DoH.o: test_DoH.cu.o
 
@@ -350,81 +236,17 @@ test_integral.cu.s:
 	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f test/CMakeFiles/test_integral.dir/build.make test/CMakeFiles/test_integral.dir/test_integral.cu.s
 .PHONY : test_integral.cu.s
 
-test_octave.o: test_octave.cu.o
-
-.PHONY : test_octave.o
-
-# target to build an object file
-test_octave.cu.o:
-	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f test/CMakeFiles/test_octave.dir/build.make test/CMakeFiles/test_octave.dir/test_octave.cu.o
-.PHONY : test_octave.cu.o
-
-test_octave.i: test_octave.cu.i
-
-.PHONY : test_octave.i
-
-# target to preprocess a source file
-test_octave.cu.i:
-	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f test/CMakeFiles/test_octave.dir/build.make test/CMakeFiles/test_octave.dir/test_octave.cu.i
-.PHONY : test_octave.cu.i
-
-test_octave.s: test_octave.cu.s
-
-.PHONY : test_octave.s
-
-# target to generate assembly for a file
-test_octave.cu.s:
-	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f test/CMakeFiles/test_octave.dir/build.make test/CMakeFiles/test_octave.dir/test_octave.cu.s
-.PHONY : test_octave.cu.s
-
-test_region_conv.o: test_region_conv.cu.o
-
-.PHONY : test_region_conv.o
-
-# target to build an object file
-test_region_conv.cu.o:
-	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f test/CMakeFiles/test_region_conv.dir/build.make test/CMakeFiles/test_region_conv.dir/test_region_conv.cu.o
-.PHONY : test_region_conv.cu.o
-
-test_region_conv.i: test_region_conv.cu.i
-
-.PHONY : test_region_conv.i
-
-# target to preprocess a source file
-test_region_conv.cu.i:
-	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f test/CMakeFiles/test_region_conv.dir/build.make test/CMakeFiles/test_region_conv.dir/test_region_conv.cu.i
-.PHONY : test_region_conv.cu.i
-
-test_region_conv.s: test_region_conv.cu.s
-
-.PHONY : test_region_conv.s
-
-# target to generate assembly for a file
-test_region_conv.cu.s:
-	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f test/CMakeFiles/test_region_conv.dir/build.make test/CMakeFiles/test_region_conv.dir/test_region_conv.cu.s
-.PHONY : test_region_conv.cu.s
-
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
 	@echo "... all (the default if no target is provided)"
 	@echo "... clean"
 	@echo "... depend"
-	@echo "... edit_cache"
-	@echo "... test_octave"
-	@echo "... test_DoH"
-	@echo "... main"
 	@echo "... rebuild_cache"
-	@echo "... test_region_conv"
-	@echo "... cv_load"
+	@echo "... test_DoH"
 	@echo "... test_cuda_mat"
 	@echo "... test_integral"
-	@echo "... cv_load.o"
-	@echo "... cv_load.i"
-	@echo "... cv_load.s"
-	@echo "... main.o"
-	@echo "... main.i"
-	@echo "... main.s"
+	@echo "... edit_cache"
 	@echo "... test_DoH.o"
 	@echo "... test_DoH.i"
 	@echo "... test_DoH.s"
@@ -434,12 +256,6 @@ help:
 	@echo "... test_integral.o"
 	@echo "... test_integral.i"
 	@echo "... test_integral.s"
-	@echo "... test_octave.o"
-	@echo "... test_octave.i"
-	@echo "... test_octave.s"
-	@echo "... test_region_conv.o"
-	@echo "... test_region_conv.i"
-	@echo "... test_region_conv.s"
 .PHONY : help
 
 

@@ -26,16 +26,21 @@ inline bool compare(T* data1, T* data2, size_t size, char msg[]){
     return true;
 }
 
-inline bool compare(Mat src1, Mat src2) {
-  Mat temp = src1 - src2;
+inline bool compare(Mat src1, Mat src2, cv::Point* max_loc=NULL) {
+  Mat diff;
+  cv::absdiff(src1,src2,diff);
   double max_val;
   double min_val;
-  cv::Point max_loc;
   cv::Point min_loc;
-  cv::minMaxLoc(temp, &min_val, &max_val,  &min_loc, &max_loc);
+  cv::minMaxLoc(diff, &min_val, &max_val,  &min_loc, max_loc);
   printf("[COMPARE] Max Difference: %f \n",max_val);
-  if (std::abs(max_val) >= 0.00001) {
+  if (max_val >= 0.00001) {
     printf("[COMPARE] Different\n");
+    if(max_loc!=NULL){
+      printf("[COMPARE] At: (%i,%i)",max_loc->y,max_loc->x);
+      printf("[COMPARE]: %f\n",src1.at<float>(max_loc->y,max_loc->x));
+      printf("[COMPARE]: %f\n",src2.at<float>(max_loc->y,max_loc->x));
+    }
     return false;
   } else{
     printf("[COMPARE] Same\n");
@@ -69,6 +74,44 @@ inline cudaError_t __cudaCheckError(const char* file, const int line){
 #endif
   return err;
 }
+
+struct GpuTimer{
+  cudaEvent_t start_;
+  cudaEvent_t stop_;
+  cudaStream_t stream_;
+  GpuTimer(cudaStream_t stream = 0):stream_(stream){
+    cudaEventCreate(&start_);
+    cudaEventCreate(&stop_);
+    cudaEventRecord(start_, stream_);
+  }
+  ~GpuTimer(){
+    cudaEventDestroy(start_);
+    cudaEventDestroy(stop_);
+  }
+  float elapsedTime(){
+    cudaEventRecord(stop_,stream_);
+    cudaEventSynchronize(stop_);
+    float t;
+    cudaEventElapsedTime(&t, start_, stop_);
+    return t;
+  }
+  
+};
+
+struct CpuTimer{
+  high_resolution_clock::time_point start_;
+  high_resolution_clock::time_point stop_;
+  
+  CpuTimer(){
+    start_ = high_resolution_clock::now();
+  }
+  float elapsedTime(){
+    stop_ = high_resolution_clock::now();
+    auto elapsed_ = stop_-start_;
+    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed_).count();
+    return static_cast<float>(ms)/1000;
+  }
+};
 
 
 //#endif

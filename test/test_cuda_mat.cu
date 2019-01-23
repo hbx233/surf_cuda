@@ -2,39 +2,57 @@
 #include "surf_cuda/cuda_mat.h"
 #include "surf_cuda/cuda_util.cuh"
 
+using namespace surf_cuda;
+template<typename T>
+__global__ void kernel_memset_1(unsigned char* devmem, size_t pitch_bytes, int rows, int cols){
+  int row_idx = threadIdx.x + blockDim.x * blockIdx.x;
+  if(row_idx<rows){
+    T* ptr = (T*)((char*)devmem + row_idx * pitch_bytes);
+    for(int c=0; c<cols; c++){
+      ptr[c]=1;
+    }
+  }
+}
+
+
 int main(){
-  //100 * 100 matrix
-  size_t width = 1000;//columns
-  size_t height = 1000;//rows
-  float* host_mat = (float*)malloc(width*height*sizeof(float));
-  float* host_mat_gpu = (float*)malloc(width*height*sizeof(float));
-  memset(host_mat, 4, width*height*sizeof(float));
-  //get cuda_mat
-  surf_cuda::CudaMat cuda_mat(width, height);
-  cuda_mat.allocate();
-  //copy to and back 
-  cuda_mat.writeDevice(host_mat, width*sizeof(float),width,height);
-  cuda_mat.readDevice(host_mat_gpu, width*sizeof(float), width, height);
-  compare(host_mat_gpu, host_mat, width*height,"Compare copy data to and from device");
-  //test image transfer 
-  Mat img = cv::imread("./data/img1.png");
-  Mat gray;
-  cv::cvtColor(img, gray, cv::COLOR_BGR2GRAY);
-  Mat gray_f;
-  gray.convertTo(gray_f,CV_32F);
-  //gray_f*= 1./255;
-  cout<<(int)gray.at<uchar>(1,2)<<endl;
-  cout<<gray_f.at<float>(1,2)<<endl;
-  surf_cuda::CudaMat cuda_img(gray_f.cols,gray_f.rows);
-  cuda_img.allocate();
-  cuda_img.writeDevice((float*)gray_f.data,gray_f.cols*sizeof(float),gray_f.cols,gray_f.rows);
-  float* host_img_gpu = (float*)malloc(gray_f.cols * gray_f.rows * sizeof(float));
-  cuda_img.readDevice(host_img_gpu, gray_f.cols*sizeof(float), gray_f.cols, gray_f.rows);
-  compare<float>(host_img_gpu,(float*)gray_f.data,gray_f.cols*gray_f.rows,"Compare copy image data");
+  int rows=100;
+  int cols=100;
+  CudaMat m_uchar_gpu(rows, cols, CV_8U);
+  CudaMat m_int_gpu(rows, cols, CV_32S);
+  CudaMat m_float_gpu(rows, cols, CV_32F);
+  CudaMat m_double_gpu(rows, cols, CV_64F);
+  Mat m_uchar_cpu= Mat::zeros(rows, cols, CV_8U);
+  Mat m_int_cpu=Mat::zeros(rows, cols, CV_32S);
+  Mat m_float_cpu=Mat::zeros(rows, cols, CV_32F);
+  Mat m_double_cpu=Mat::zeros(rows, cols, CV_64F);
   
-  Mat img_gpu_f(gray_f.rows, gray_f.cols, CV_32F,(void*)host_img_gpu);
-  img_gpu_f*=1./255;
-  cv::namedWindow("Display");
-  cv::imshow("Display",img_gpu_f);
-  cv::waitKey(0);
+  m_uchar_gpu.allocate();
+  m_int_gpu.allocate();
+  m_float_gpu.allocate();
+  m_double_gpu.allocate();
+  
+  m_uchar_gpu.copyFromMat(m_uchar_cpu);
+  m_int_gpu.copyFromMat(m_int_cpu);
+  m_float_gpu.copyFromMat(m_float_cpu);
+  m_double_gpu.copyFromMat(m_double_cpu);
+  
+  int block_dim = 128;
+  dim3 block(128,1,1);
+  dim3 grid(rows/block_dim+1,1,1);
+  
+  kernel_memset_1<unsigned char> <<<grid,block>>>(m_uchar_gpu.data, m_uchar_gpu.pitch_bytes(), m_uchar_gpu.rows(), m_uchar_gpu.cols());
+  kernel_memset_1<int> <<<grid,block>>>(m_int_gpu.data, m_int_gpu.pitch_bytes(), m_int_gpu.rows(), m_int_gpu.cols());
+  kernel_memset_1<float> <<<grid,block>>>(m_float_gpu.data, m_float_gpu.pitch_bytes(), m_float_gpu.rows(), m_float_gpu.cols());
+  kernel_memset_1<double> <<<grid,block>>>(m_double_gpu.data, m_double_gpu.pitch_bytes(), m_double_gpu.rows(), m_double_gpu.cols());
+  
+  m_uchar_gpu.copyToMat(m_uchar_cpu);
+  m_int_gpu.copyToMat(m_int_cpu);
+  m_float_gpu.copyToMat(m_float_cpu);
+  m_double_gpu.copyToMat(m_double_cpu);
+  cout<<m_uchar_cpu<<endl;
+  cout<<m_int_cpu<<endl;
+  cout<<m_float_cpu<<endl;
+  cout<<m_double_cpu<<endl;
+  
 }

@@ -124,19 +124,6 @@ surf_cuda/fast:
 .PHONY : surf_cuda/fast
 
 #=============================================================================
-# Target rules for targets named test_octave
-
-# Build rule for target.
-test_octave: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 test_octave
-.PHONY : test_octave
-
-# fast build rule for target.
-test_octave/fast:
-	$(MAKE) -f test/CMakeFiles/test_octave.dir/build.make test/CMakeFiles/test_octave.dir/build
-.PHONY : test_octave/fast
-
-#=============================================================================
 # Target rules for targets named test_DoH
 
 # Build rule for target.
@@ -148,45 +135,6 @@ test_DoH: cmake_check_build_system
 test_DoH/fast:
 	$(MAKE) -f test/CMakeFiles/test_DoH.dir/build.make test/CMakeFiles/test_DoH.dir/build
 .PHONY : test_DoH/fast
-
-#=============================================================================
-# Target rules for targets named main
-
-# Build rule for target.
-main: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 main
-.PHONY : main
-
-# fast build rule for target.
-main/fast:
-	$(MAKE) -f test/CMakeFiles/main.dir/build.make test/CMakeFiles/main.dir/build
-.PHONY : main/fast
-
-#=============================================================================
-# Target rules for targets named test_region_conv
-
-# Build rule for target.
-test_region_conv: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 test_region_conv
-.PHONY : test_region_conv
-
-# fast build rule for target.
-test_region_conv/fast:
-	$(MAKE) -f test/CMakeFiles/test_region_conv.dir/build.make test/CMakeFiles/test_region_conv.dir/build
-.PHONY : test_region_conv/fast
-
-#=============================================================================
-# Target rules for targets named cv_load
-
-# Build rule for target.
-cv_load: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 cv_load
-.PHONY : cv_load
-
-# fast build rule for target.
-cv_load/fast:
-	$(MAKE) -f test/CMakeFiles/cv_load.dir/build.make test/CMakeFiles/cv_load.dir/build
-.PHONY : cv_load/fast
 
 #=============================================================================
 # Target rules for targets named test_cuda_mat
@@ -223,11 +171,7 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
 	@echo "... surf_cuda"
-	@echo "... test_octave"
 	@echo "... test_DoH"
-	@echo "... main"
-	@echo "... test_region_conv"
-	@echo "... cv_load"
 	@echo "... test_cuda_mat"
 	@echo "... test_integral"
 .PHONY : help

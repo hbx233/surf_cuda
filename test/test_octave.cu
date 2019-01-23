@@ -51,12 +51,18 @@ int main(){
   //convert image to gray scale image
   Mat gray_img;
   cv::cvtColor(img,gray_img,cv::COLOR_BGR2GRAY);
-  //convert image type from CV_8U to CV_32F
 #endif
-  cv::Mat mat_in = Mat::ones(1080,1920,CV_32F);
+  cv::Mat mat_in;
 #if TEST_IMG
+  //convert image type from CV_8U to CV_32F
   gray_img.convertTo(mat_in, CV_32F);
+#else
+  mat_in = Mat::ones(1080,1920,CV_32F)*255;
 #endif
+  //mat_in/=255;
+  cv::namedWindow("display");
+  cv::imshow("display",mat_in);
+  cv::waitKey(0);
   //get image size 
   const int rows = mat_in.rows;
   const int cols = mat_in.cols;
@@ -100,8 +106,19 @@ int main(){
     filters_cpu[i](mat_in,doh_map_cpu[i]); 
   }
   cout<<"Diff between CPU and GPU result"<<endl;
+  double max_val_cpu;
+  cv::minMaxLoc(doh_map_cpu[3],NULL,&max_val_cpu);
+  double max_val_gpu;
+  cv::minMaxLoc(doh_map_gpu[3],NULL,&max_val_gpu);
+  cout<<max_val_cpu<<' '<<max_val_gpu<<endl;
+  cout<<doh_map_cpu[0].ptr<float>(1000)[1000]<<endl;
+  cout<<doh_map_gpu[0].ptr<float>(1000)[1000]<<endl;
   for(int i=0;i<4;i++){
     //cout<<doh_map_cpu[i]-doh_map_gpu[i]<<endl;
-    compare(doh_map_cpu[i],doh_map_gpu[i]);
+    compare(doh_map_cpu[i](cv::Rect(0,0,200,200)),doh_map_gpu[i](cv::Rect(0,0,200,200)));
+    compare(doh_map_cpu[i](cv::Rect(0,0,300,300)),doh_map_gpu[i](cv::Rect(0,0,300,300)));
+    compare(doh_map_cpu[i](cv::Rect(0,0,400,400)),doh_map_gpu[i](cv::Rect(0,0,400,400)));
+    compare(doh_map_cpu[i](cv::Rect(0,0,500,500)),doh_map_gpu[i](cv::Rect(0,0,500,500)));
+    compare(doh_map_cpu[i](cv::Rect(0,0,600,600)),doh_map_gpu[i](cv::Rect(0,0,600,600))); 
   }
 }

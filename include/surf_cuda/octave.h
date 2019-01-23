@@ -3,7 +3,7 @@
 
 #include "surf_cuda/common.h"
 #include "surf_cuda/cuda_mat.h"
-#include "surf_cuda/DoH_filter.h"
+#include "surf_cuda/DoH_filter.cuh"
 
 namespace surf_cuda{
 class Octave{
@@ -37,6 +37,7 @@ public:
   
   void findKeyPoints();
   
+  void nonMaxSupression();
   //number of levels(images) in the Octave
   int level_num_; 
   //number of rows and columns, all levels in octave have the same rows and columns size
