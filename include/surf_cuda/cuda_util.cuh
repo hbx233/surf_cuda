@@ -109,7 +109,7 @@ struct CpuTimer{
     stop_ = high_resolution_clock::now();
     auto elapsed_ = stop_-start_;
     auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed_).count();
-    return static_cast<float>(ms)/1000;
+    return static_cast<float>(ms);
   }
 };
 

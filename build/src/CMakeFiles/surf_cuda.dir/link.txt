@@ -1,2 +1,2 @@
-/usr/bin/ar qc libsurf_cuda.a  CMakeFiles/surf_cuda.dir/cuda_mat.cu.o CMakeFiles/surf_cuda.dir/surf.cu.o
+/usr/bin/ar qc libsurf_cuda.a  CMakeFiles/surf_cuda.dir/cuda_mat.cu.o CMakeFiles/surf_cuda.dir/surf.cu.o CMakeFiles/surf_cuda.dir/DoH_filter.cu.o CMakeFiles/surf_cuda.dir/octave.cu.o
 /usr/bin/ranlib libsurf_cuda.a

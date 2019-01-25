@@ -41,13 +41,13 @@ struct DoHFilter_cpu{
   }
 };
 
-#define TEST_IMG 0
+#define TEST_IMG 1
 
 int main(){
 #if TEST_IMG
   //compute integral image 
   cv::Mat img;
-  img = cv::imread("./data/img3.png");
+  img = cv::imread("./data/img1.png");
   //convert image to gray scale image
   Mat gray_img;
   cv::cvtColor(img,gray_img,cv::COLOR_BGR2GRAY);
@@ -55,70 +55,47 @@ int main(){
   cv::Mat mat_in;
 #if TEST_IMG
   //convert image type from CV_8U to CV_32F
-  gray_img.convertTo(mat_in, CV_32F);
+  gray_img.convertTo(mat_in, CV_32S);
 #else
-  mat_in = Mat::ones(1080,1920,CV_32F)*255;
+  mat_in = Mat::ones(1080,1920,CV_32S)*255;
 #endif
-  //mat_in/=255;
-  cv::namedWindow("display");
-  cv::imshow("display",mat_in);
-  cv::waitKey(0);
   //get image size 
   const int rows = mat_in.rows;
   const int cols = mat_in.cols;
-  Mat mat_integral = Mat::zeros(rows,cols,CV_32F);
   CudaMat cuda_mat_in(mat_in);
   CudaMat cuda_mat_integral(mat_in);
   cuda_mat_in.allocate();
   cuda_mat_integral.allocate();
-  cuda_mat_in.writeDeviceFromMat_32F(mat_in);
-  SURF surf;
   //compute integral image 
-  surf.compIntegralImage(cuda_mat_in, cuda_mat_integral,32,32);
-  //read integral image to host
-  cuda_mat_integral.readDeviceToMat_32F(mat_integral);
-  //cout<<mat_integral<<endl;
-  //create octave 
-  Octave octave_stride1(4,rows,cols,{9,15,21,27});
-  //Octave octave_stride1(2,rows,cols,{9,15});
-  cout<<"octave filters size"<<endl;
-  for(int i=0;i<octave_stride1.filters.size();i++){
-    cout<<octave_stride1.filters[i].size<<endl;
-  }
-  cout<<"Allocate Octave"<<endl;
-  octave_stride1.allocateGpu();
-  cout<<"fill octave"<<endl;
-  octave_stride1.fill(cuda_mat_integral,1);
-  vector<Mat> doh_map_gpu;
-  octave_stride1.readDoHResponseMap(doh_map_gpu);
+  SURF surf;
+  //create octave
+  Octave octave_1(rows,cols,1,{9,15,21,27});
+  Octave octave_2(rows/2, cols/2, 2, {15,27,39,51});
+  Octave octave_3(rows/4, cols/4, 4, {27,51,75,99});
+  //allocate octave 
+  octave_1.allocate();
+  octave_2.allocate();
+  octave_3.allocate();
+  //compute integral image
+  surf.compIntegralImage(cuda_mat_in,cuda_mat_integral);
+  //fill octaves 
+  octave_1.fill(cuda_mat_integral);
+  octave_2.fill(cuda_mat_integral);
+  octave_3.fill(cuda_mat_integral);
+  //read octave results
+  vector<Mat> octave_response_1;
+  vector<Mat> octave_response_2;
+  vector<Mat> octave_response_3;
+  octave_1.readDoHResponseMap(octave_response_1);
+  octave_2.readDoHResponseMap(octave_response_2);
+  octave_3.readDoHResponseMap(octave_response_3);
+  //show image 
+  cv::namedWindow("1");
+  cv::namedWindow("2");
+  cv::namedWindow("3");
+  cv::imshow("1",octave_response_1[1]);
+  cv::imshow("2",octave_response_2[1]);
+  cv::imshow("3",octave_response_3[1]);
   
-  vector<Mat> doh_map_cpu(4);
-  for(int i=0;i<4;i++){
-    doh_map_cpu[i].create(rows,cols,CV_32F);
-  }
-  vector<DoHFilter_cpu> filters_cpu { 
-    DoHFilter_cpu(9),
-    DoHFilter_cpu(15),
-    DoHFilter_cpu(21),
-    DoHFilter_cpu(27)
-  };
-  for(int i=0;i<4;i++){
-    filters_cpu[i](mat_in,doh_map_cpu[i]); 
-  }
-  cout<<"Diff between CPU and GPU result"<<endl;
-  double max_val_cpu;
-  cv::minMaxLoc(doh_map_cpu[3],NULL,&max_val_cpu);
-  double max_val_gpu;
-  cv::minMaxLoc(doh_map_gpu[3],NULL,&max_val_gpu);
-  cout<<max_val_cpu<<' '<<max_val_gpu<<endl;
-  cout<<doh_map_cpu[0].ptr<float>(1000)[1000]<<endl;
-  cout<<doh_map_gpu[0].ptr<float>(1000)[1000]<<endl;
-  for(int i=0;i<4;i++){
-    //cout<<doh_map_cpu[i]-doh_map_gpu[i]<<endl;
-    compare(doh_map_cpu[i](cv::Rect(0,0,200,200)),doh_map_gpu[i](cv::Rect(0,0,200,200)));
-    compare(doh_map_cpu[i](cv::Rect(0,0,300,300)),doh_map_gpu[i](cv::Rect(0,0,300,300)));
-    compare(doh_map_cpu[i](cv::Rect(0,0,400,400)),doh_map_gpu[i](cv::Rect(0,0,400,400)));
-    compare(doh_map_cpu[i](cv::Rect(0,0,500,500)),doh_map_gpu[i](cv::Rect(0,0,500,500)));
-    compare(doh_map_cpu[i](cv::Rect(0,0,600,600)),doh_map_gpu[i](cv::Rect(0,0,600,600))); 
-  }
+  
 }

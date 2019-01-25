@@ -11,6 +11,8 @@ surf_cuda/common.h
 ../include/surf_cuda/surf_cuda/common.h
 surf_cuda/cuda_util.cuh
 ../include/surf_cuda/surf_cuda/cuda_util.cuh
+surf_cuda/cuda_mat.h
+../include/surf_cuda/surf_cuda/cuda_mat.h
 
 ../include/surf_cuda/common.h
 vector

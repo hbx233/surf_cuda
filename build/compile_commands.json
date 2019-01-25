@@ -10,6 +10,16 @@
   "file": "/home/hbx/git/surf_cuda/src/surf.cu"
 },
 {
+  "directory": "/home/hbx/git/surf_cuda/build/src",
+  "command": "/usr/local/cuda/bin/nvcc   -I/home/hbx/git/surf_cuda/include -isystem=/opt/ros/kinetic/include/opencv-3.3.1-dev -isystem=/opt/ros/kinetic/include/opencv-3.3.1-dev/opencv  -O3 -DNDEBUG   -std=c++11 -x cu -dc /home/hbx/git/surf_cuda/src/DoH_filter.cu -o CMakeFiles/surf_cuda.dir/DoH_filter.cu.o",
+  "file": "/home/hbx/git/surf_cuda/src/DoH_filter.cu"
+},
+{
+  "directory": "/home/hbx/git/surf_cuda/build/src",
+  "command": "/usr/local/cuda/bin/nvcc   -I/home/hbx/git/surf_cuda/include -isystem=/opt/ros/kinetic/include/opencv-3.3.1-dev -isystem=/opt/ros/kinetic/include/opencv-3.3.1-dev/opencv  -O3 -DNDEBUG   -std=c++11 -x cu -dc /home/hbx/git/surf_cuda/src/octave.cu -o CMakeFiles/surf_cuda.dir/octave.cu.o",
+  "file": "/home/hbx/git/surf_cuda/src/octave.cu"
+},
+{
   "directory": "/home/hbx/git/surf_cuda/build/test",
   "command": "/usr/local/cuda/bin/nvcc   -I/home/hbx/git/surf_cuda/include -isystem=/opt/ros/kinetic/include/opencv-3.3.1-dev -isystem=/opt/ros/kinetic/include/opencv-3.3.1-dev/opencv  -O3 -DNDEBUG   -std=c++11 -x cu -c /home/hbx/git/surf_cuda/test/test_DoH.cu -o CMakeFiles/test_DoH.dir/test_DoH.cu.o",
   "file": "/home/hbx/git/surf_cuda/test/test_DoH.cu"

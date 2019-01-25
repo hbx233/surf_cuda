@@ -1,6 +1,8 @@
 file(REMOVE_RECURSE
   "CMakeFiles/surf_cuda.dir/cuda_mat.cu.o"
   "CMakeFiles/surf_cuda.dir/surf.cu.o"
+  "CMakeFiles/surf_cuda.dir/DoH_filter.cu.o"
+  "CMakeFiles/surf_cuda.dir/octave.cu.o"
   "libsurf_cuda.pdb"
   "libsurf_cuda.a"
 )

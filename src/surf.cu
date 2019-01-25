@@ -2,7 +2,13 @@
 #include "surf_cuda/cuda_util.cuh"
 #include "surf_cuda/surf.h"
 namespace surf_cuda{
+#if 0
+SURF::SURF(){
+  //first level octave 
+  octaves_[0] = Octave(4,rows_,cols_,{9,15,21,27});
   
+}
+#endif
 template <typename T>
 __global__ void compRowIntegral(unsigned char* mat_in, unsigned char* mat_out, size_t rows, size_t cols, size_t pitch_bytes){
   int row_idx = threadIdx.x + blockIdx.x * blockDim.x;
@@ -60,39 +66,6 @@ void SURF::compIntegralImage(const CudaMat& img_in, const CudaMat& img_integral)
   dim3 grid_col(img_in.rows()/block_dim_x_col + 1,1,1);
   compColIntegral<int> <<<block_row, grid_row>>>(img_integral.data, img_integral.data,img_integral.rows(), img_integral.cols(), img_integral.pitch_bytes());
   cudaDeviceSynchronize();
-}
-
-__global__ void kernel_DoH_Filter(unsigned char* integral_mat, size_t integral_pitch_bytes, int integral_rows, int integral_cols, unsigned char* response_mat, size_t response_pitch_bytes, int response_rows, int response_cols, int stride, DoHFilter doh_filter){
-  //first check if the output response map with current stride parameter can fit in the memory of input response map
-  //will not use the fast few columns for sub sampling 
-  if(response_rows==integral_rows/stride || response_cols==integral_cols/stride){
-    //Just one kernel per row's computation 
-    int row_response_idx = threadIdx.x + blockDim.x * blockIdx.x;
-    if(row_response_idx<response_rows){
-      //response map's row pointer 
-      float* row_response_addr = (float*)(response_mat + row_response_idx * response_pitch_bytes);
-      int row_integral_idx = row_response_idx * stride;
-      //loop through columns 
-//#pragma unroll 4
-      for(int c=0; c<response_cols; c++){
-	row_response_addr[c] = doh_filter(integral_mat, integral_pitch_bytes, row_integral_idx, c*stride, integral_rows, integral_cols); 
-      }
-    }
-  }
-}
-
-void SURF::compDoHBlobResponseMap(const CudaMat& img_integral, const CudaMat& img_doh_response, const DoHFilter& doh_filter ,const int& stride){
-  //check CudaMat type 
-  if(img_integral.type()==CV_32S && img_doh_response.type() == CV_32F){
-    size_t block_dim_x = 128;
-    dim3 block(block_dim_x,1,1);
-    dim3 grid(img_doh_response.rows()/block_dim_x + 1,1,1);
-    kernel_DoH_Filter<<<grid,block>>> (img_integral.data,img_integral.pitch_bytes(),img_integral.rows(),img_integral.cols(),img_doh_response.data,img_doh_response.pitch_bytes(),img_doh_response.rows(),img_doh_response.cols(),stride, doh_filter);
-    CudaCheckError();
-    cudaDeviceSynchronize();
-  } else{
-    fprintf(stderr,"[CUDA] [DoH Response Map] The CudaMat type should be CV_32S for inpute, CV_32F for output");
-  }
 }
 
 

@@ -125,6 +125,33 @@ surf_cuda/fast:
 	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f src/CMakeFiles/surf_cuda.dir/build.make src/CMakeFiles/surf_cuda.dir/build
 .PHONY : surf_cuda/fast
 
+DoH_filter.o: DoH_filter.cu.o
+
+.PHONY : DoH_filter.o
+
+# target to build an object file
+DoH_filter.cu.o:
+	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f src/CMakeFiles/surf_cuda.dir/build.make src/CMakeFiles/surf_cuda.dir/DoH_filter.cu.o
+.PHONY : DoH_filter.cu.o
+
+DoH_filter.i: DoH_filter.cu.i
+
+.PHONY : DoH_filter.i
+
+# target to preprocess a source file
+DoH_filter.cu.i:
+	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f src/CMakeFiles/surf_cuda.dir/build.make src/CMakeFiles/surf_cuda.dir/DoH_filter.cu.i
+.PHONY : DoH_filter.cu.i
+
+DoH_filter.s: DoH_filter.cu.s
+
+.PHONY : DoH_filter.s
+
+# target to generate assembly for a file
+DoH_filter.cu.s:
+	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f src/CMakeFiles/surf_cuda.dir/build.make src/CMakeFiles/surf_cuda.dir/DoH_filter.cu.s
+.PHONY : DoH_filter.cu.s
+
 cuda_mat.o: cuda_mat.cu.o
 
 .PHONY : cuda_mat.o
@@ -151,6 +178,33 @@ cuda_mat.s: cuda_mat.cu.s
 cuda_mat.cu.s:
 	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f src/CMakeFiles/surf_cuda.dir/build.make src/CMakeFiles/surf_cuda.dir/cuda_mat.cu.s
 .PHONY : cuda_mat.cu.s
+
+octave.o: octave.cu.o
+
+.PHONY : octave.o
+
+# target to build an object file
+octave.cu.o:
+	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f src/CMakeFiles/surf_cuda.dir/build.make src/CMakeFiles/surf_cuda.dir/octave.cu.o
+.PHONY : octave.cu.o
+
+octave.i: octave.cu.i
+
+.PHONY : octave.i
+
+# target to preprocess a source file
+octave.cu.i:
+	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f src/CMakeFiles/surf_cuda.dir/build.make src/CMakeFiles/surf_cuda.dir/octave.cu.i
+.PHONY : octave.cu.i
+
+octave.s: octave.cu.s
+
+.PHONY : octave.s
+
+# target to generate assembly for a file
+octave.cu.s:
+	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f src/CMakeFiles/surf_cuda.dir/build.make src/CMakeFiles/surf_cuda.dir/octave.cu.s
+.PHONY : octave.cu.s
 
 surf.o: surf.cu.o
 
@@ -188,9 +242,15 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
 	@echo "... surf_cuda"
+	@echo "... DoH_filter.o"
+	@echo "... DoH_filter.i"
+	@echo "... DoH_filter.s"
 	@echo "... cuda_mat.o"
 	@echo "... cuda_mat.i"
 	@echo "... cuda_mat.s"
+	@echo "... octave.o"
+	@echo "... octave.i"
+	@echo "... octave.s"
 	@echo "... surf.o"
 	@echo "... surf.i"
 	@echo "... surf.s"

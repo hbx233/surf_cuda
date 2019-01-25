@@ -1,3 +1,4 @@
+
 #include "surf_cuda/common.h"
 #include "surf_cuda/cuda_mat.h"
 #include "surf_cuda/DoH_filter.cuh"
@@ -52,6 +53,11 @@ struct DoHFilter_cpu{
   }
 };
 
+__global__ void kernel_DoH_filter_texture(cudaTextureObject_t integral_tex, int integral_rows, int integral_cols, unsigned char* response_map, size_t response_pitch_bytes, int response_rows, int response_cols, int stride){
+  
+}
+
+
 #define TEST_IMG 1
 
 int main(){
@@ -75,6 +81,13 @@ int main(){
   Mat mat_integral_gpu = Mat::zeros(rows,cols,CV_32S);
   CudaMat cuda_mat_integral(rows,cols,CV_32S);
   cuda_mat_integral.allocate();
+  //Allocate Texture memory
+  cudaChannelFormatDesc channelDesc =
+             cudaCreateChannelDesc(32, 0, 0, 0,
+                                   cudaChannelFormatKindSigned);
+  cudaArray* cuda_mat_integral_tex;
+  cudaMallocArray(&cuda_mat_integral_tex, &channelDesc, cols, rows);
+
   
   //COPY IMAGE TO DEVICE
   cuda_mat_in.copyFromMat(mat_in_cpu);
@@ -95,6 +108,26 @@ int main(){
   CudaMat cuda_response_map_stride2(rows/2,cols/2,CV_32F);
   cuda_response_map_stride2.allocate();
   
+  
+    // Specify texture
+    struct cudaResourceDesc resDesc;
+    memset(&resDesc, 0, sizeof(resDesc));
+    resDesc.resType = cudaResourceTypeArray;
+    resDesc.res.array.array = cuda_mat_integral_tex;
+
+    // Specify texture object parameters
+    struct cudaTextureDesc texDesc;
+    memset(&texDesc, 0, sizeof(texDesc));
+    texDesc.addressMode[0]   = cudaAddressModeBoarder;
+    texDesc.addressMode[1]   = cudaAddressModeBoarder;
+    texDesc.filterMode       = cudaFilterModePoint;
+    texDesc.readMode         = cudaReadModeElementType;
+    texDesc.normalizedCoords = 0;
+
+    // Create texture object
+    cudaTextureObject_t integral_tex = 0;
+    cudaCreateTextureObject(&integral_tex, &resDesc, &texDesc, NULL);
+  
   //create timer
   GpuTimer gpu_timer;
   CpuTimer cpu_timer;
@@ -105,8 +138,12 @@ int main(){
   //float elapsed_gpu = gpu_timer.elapsedTime() - start_gpu;
   float elapsed_gpu = cpu_timer.elapsedTime() - start_gpu;
   cout<<"[GPU] Computation Time: "<<elapsed_gpu<<"ms"<<endl;
+  //copy integral_image from global device memory to texture memory 
+  cudaMemcpy2DToArray(cuda_mat_integral_tex, 0, 0, (void*)cuda_mat_integral.data, cuda_mat_integral.pitch_bytes(), cuda_mat_integral.cols * sizeof(int),cuda_mat_integral.rows,
+                    cudaMemcpyDeviceToDevice);
   //Compute Blob response Map 
   compDoHResponseMap(cuda_mat_integral,cuda_response_map_stride1,doh_filter_gpu,1);
+  
   elapsed_gpu = cpu_timer.elapsedTime() - start_gpu;
   cout<<"[GPU] Computation Time: "<<elapsed_gpu<<"ms"<<endl;
   
