@@ -6,15 +6,24 @@ using surf_cuda::CudaMat;
 using surf_cuda::SURF;
 using surf_cuda::WeightedRegionIntegral;
 
-__global__ void test_kernel_weighted_region(WeightedRegionIntegral region,float* integral_mat, float* weight_conv_mat, size_t pitch, int rows, int cols){
+__global__ void test_kernel_weighted_region(WeightedRegionIntegral<int> region,unsigned char* integral_mat, unsigned char* weight_conv_mat, size_t pitch, int rows, int cols){
   int row_idx = threadIdx.x + blockIdx.x * blockDim.x;
   if(row_idx<rows){
     //float* row_addr_in = (float*)((char*)integral_mat + row_idx * pitch);
-    float* row_addr_out = (float*)((char*)weight_conv_mat + row_idx * pitch);
-    //TODO: DEBUG
+    int* row_addr_out = (int*)(weight_conv_mat + row_idx * pitch);
     for(int i=0; i<cols; i++){
       row_addr_out[i] = region(integral_mat,pitch, row_idx, i, rows, cols);
-      //printf("%f",region(integral_mat,pitch, row_idx, c, rows, cols));
+    }
+  }
+}
+
+__global__ void test_kernel_weighted_region_tex(WeightedRegionIntegral<int> region, cudaTextureObject_t integral_mat_tex, unsigned char* weight_conv_mat, size_t pitch, int rows, int cols){
+  int row_idx = threadIdx.x + blockIdx.x * blockDim.x;
+  if(row_idx<rows){
+    //float* row_addr_in = (float*)((char*)integral_mat + row_idx * pitch);
+    int* row_addr_out = (int*)(weight_conv_mat + row_idx * pitch);
+    for(int i=0; i<cols; i++){
+      row_addr_out[i] = region(integral_mat_tex,pitch, row_idx, i, rows, cols);
     }
   }
 }

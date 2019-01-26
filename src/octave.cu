@@ -9,7 +9,7 @@ Octave::Octave(const int& rows, const int& cols, const int& stride, const std::v
   filters.clear();
   for(int i=0; i<filters_size.size(); i++){
     //create response maps, cannot use vector initialization 
-    response_maps.emplace_back(rows_,cols_,CV_32F);
+    //response_maps.emplace_back(rows_,cols_,CV_32F);
     //create filters with given size 
     filters.push_back(DoHFilter(filters_size[i]));
   }

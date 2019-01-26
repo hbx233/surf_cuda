@@ -14,12 +14,29 @@ public:
       //CudaSafeCall(cudaFree(data));
       cudaFree(data);
     }
-  };
+  }
   /*!
-   * @brief Allocate Memory on GPU according to the rows columns and type 
-   * only allocated 2D new memory at the beginning, reallocated only have to change the size 
+   * @brief Allocate Global Memory on GPU according to the rows columns and type 
+   * only allocated 2D new memory once, reallocated only when have to change the size 
    */
   void allocate();
+  /*!
+   * @brief Allocate Read-only texture memory on GPU, will be used ONLY in coordinate with Allocated Global Memory
+   * @note Need to first transfer the data in Global Memory to Texture Memory, then Read Texture memory  
+   */
+  void allocateArray();
+  
+  /*!
+   * @brief Set the Texture Object member in the class as interface for fetching data in texture memory \
+   * @param tex_desc texture descriptor that is used to create texture object 
+   */
+  void setTextureObjectInterface(cudaTextureDesc tex_desc);
+  
+  /*!
+   * @brief Transfer the internal data in global memory to texture memory for fast memory accessing  
+   */
+  void copyToArray();
+  
   /*!
    * @brief Write Device memory from host  
    * @param hostmem pointer of host memory 
@@ -27,8 +44,9 @@ public:
    * @param width width of host memory, in element 
    * @param height height of host memory, in element 
    */ 
-  
   void writeDevice(void* hostmem, size_t hostpitch_bytes, int width, int height);
+  
+  
   /*!
    * @brief Read Device data to host memory  
    * @param hostmem pointer of host memory 
@@ -36,8 +54,29 @@ public:
    * @param width width of host memory, in element 
    * @param height height of host memory, in element 
    */ 
-
   void readDevice(void* hostmem, size_t hostpitch_bytes, int width, int height);
+  
+  /*!
+   * @brief Write Device Texture Memory from host 
+   * @param hostmem pointer of host memory 
+   * @param hostpitch pitch of host memory, in byte 
+   * @param width width of host memory, in element 
+   * @param height height of host memory, in element 
+   */
+  void writeDeviceToArray(void* hostmem, size_t host_pitch_bytes, int width, int height);
+  
+  /*!
+   * @brief Read Device data from Texture Memory to Host memory  
+   * @param hostmem pointer of host memory 
+   * @param hostpitch pitch of host memory, in byte 
+   * @param width width of host memory, in element 
+   * @param height height of host memory, in element 
+   * @note this function is not meant to be used frequently since Cuda Array is meant to be read fast and compute result
+   *       and hence the cuda array usually doesn't contain the result data
+   */ 
+  void readDeviceFromArray(void* hostmem, size_t host_pitch_bytes, int width, int height);
+  
+  
    
   /*!
    * @brief Wraper function that perform memory copy from Host Mat object to Device CudaMat gpu memory
@@ -45,6 +84,7 @@ public:
    * @note The Mat object should have the same type as type_
    */
   void copyFromMat(const Mat& mat);
+  
   /*!
    * @brief Wraper function that perform memory copy from Device CudaMat to Host Mat object memory 
    * @param mat The Mat object that the data will copy to 
@@ -65,6 +105,7 @@ public:
    
    
 public:
+  //TODO: store data in smart pointer 
   unsigned char* data;
   __host__ __device__ const int rows() const;
   __host__ __device__ const int cols() const;
@@ -72,6 +113,10 @@ public:
   __host__ __device__ const int type() const;
   __host__ __device__ const int depth() const;
   __host__ __device__ const int elemSize() const;
+  __host__ __device__ const cudaTextureObject_t texture_object() const;
+  __host__ __device__ const cudaChannelFormatDesc channel_desc() const;
+  __host__ __device__ const cudaResourceDesc resource_desc() const;
+  __host__ __device__ const cudaTextureDesc texture_desc() const;
 private:
   //number of rows and columns 
   int cols_;//column number
@@ -81,9 +126,20 @@ private:
   int depth_;
   int elemSize_;
   //set true if allocated using allocate(), and will deallocate when destruct
-  bool internalAllocated_;
-};
+  bool internalAllocated_{false};
   
+  //CUDA Array texture memory 
+  cudaArray* cuda_array_;
+  cudaTextureObject_t tex_obj_;
+  cudaChannelFormatDesc channel_desc_;
+  cudaResourceDesc res_desc_;
+  cudaTextureDesc tex_desc_;
+  bool internalAllocatedArray_{false};
+  bool valid_data_in_tex{false};
+  bool valid_texture_obj_{false};
+  
+  
+};
 }
 
 

@@ -101,15 +101,25 @@ struct GpuTimer{
 struct CpuTimer{
   high_resolution_clock::time_point start_;
   high_resolution_clock::time_point stop_;
-  
+  bool started_{false};
   CpuTimer(){
-    start_ = high_resolution_clock::now();
   }
-  float elapsedTime(){
-    stop_ = high_resolution_clock::now();
-    auto elapsed_ = stop_-start_;
-    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed_).count();
-    return static_cast<float>(ms);
+  void elapsedTimeStart(){
+    start_ = high_resolution_clock::now();
+    started_ = true;
+  }
+  float elapsedTimeStop(){
+    if(started_==true){
+      stop_ = high_resolution_clock::now();
+      auto elapsed_ = stop_-start_;
+      auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed_).count();
+      cout<<"[Timer] Elapsed Time from Latest elapsedTimeStart Function: "<<ms<<"ms"<<endl;
+      started_ = false;
+      return static_cast<float>(ms);
+    } else{
+      cerr<<"[Timer] Have to Call elapsedTimeStart before calling elapsedTimeStop"<<endl;
+      return -1;
+    }
   }
 };
 
