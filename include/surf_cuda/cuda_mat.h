@@ -2,19 +2,21 @@
 #define CUDA_MAT_H_
 #include "surf_cuda/common.h"
 #include "surf_cuda/cuda_util.cuh"
+
 namespace surf_cuda{
 class CudaMat{
 public:
-  CudaMat():rows_(0),cols_(0),pitch_bytes_(0),type_(0), depth_(0), elemSize_(0), data(NULL),internalAllocated_(false){}
-  CudaMat(const int& rows, const int& cols, int type):rows_(rows),cols_(cols),type_(type){}
-  CudaMat(const CudaMat& ) = delete;
-  ~CudaMat(){
-    cout<<"*"<<endl;
-    if(internalAllocated_){
-      //CudaSafeCall(cudaFree(data));
-      cudaFree(data);
-    }
-  }
+  /*!
+   * @brief default constructor
+   */
+  CudaMat():rows_(0),cols_(0),pitch_bytes_(0),type_(0), depth_(0), elemSize_(0), cuda_mem_(nullptr),cuda_array_(nullptr){}
+  /*!
+   * @brief constructor that initializes the rows, cols and type for allocation
+   * @param rows number of rows for Global Memory and Cuda Array 
+   * @param cols number of columns for Global Memory and Cuda Array
+   * @param type OpenCV type that is used to indicate the type of Memory   
+   */
+  CudaMat(const int& rows, const int& cols, int type):rows_(rows),cols_(cols),type_(type), cuda_mem_(nullptr),cuda_array_(nullptr){}
   /*!
    * @brief Allocate Global Memory on GPU according to the rows columns and type 
    * only allocated 2D new memory once, reallocated only when have to change the size 
@@ -92,53 +94,46 @@ public:
    */
    void copyToMat(Mat& mat);
    
-   template<typename T>
-   __device__ T* ptr(int row){
-     if(row>=0 && row<rows_){
-       return (T*)(data + row * pitch_bytes_);
-     } else{
-       //can assert here?
-       printf("[CUDA] Invalid row address");
-       return NULL;
-     }
-   }
-   
    
 public:
-  //TODO: store data in smart pointer 
-  unsigned char* data;
-  __host__ __device__ const int rows() const;
-  __host__ __device__ const int cols() const;
-  __host__ __device__ const size_t pitch_bytes() const;
-  __host__ __device__ const int type() const;
-  __host__ __device__ const int depth() const;
-  __host__ __device__ const int elemSize() const;
-  __host__ __device__ const cudaTextureObject_t texture_object() const;
-  __host__ __device__ const cudaChannelFormatDesc channel_desc() const;
-  __host__ __device__ const cudaResourceDesc resource_desc() const;
-  __host__ __device__ const cudaTextureDesc texture_desc() const;
+  unsigned char* data() const;
+  const int rows() const;
+  const int cols() const;
+  const size_t pitch_bytes() const;
+  const int type() const;
+  const int depth() const;
+  const int elemSize() const;
+  const cudaTextureObject_t texture_object() const;
+  const cudaChannelFormatDesc channel_desc() const;
+  const cudaResourceDesc resource_desc() const;
+  const cudaTextureDesc texture_desc() const;
 private:
+  
+  void checkMemAllocation() const;
+  void checkArrayAllocation() const;
+  
   //number of rows and columns 
   int cols_;//column number
   int rows_;//row number 
-  size_t pitch_bytes_;
   int type_;
   int depth_;
   int elemSize_;
-  //set true if allocated using allocate(), and will deallocate when destruct
-  bool internalAllocated_{false};
+  //CUDA Global Memory on GPU 
+  shared_ptr<unsigned char> cuda_mem_;
+  size_t pitch_bytes_;
   
   //CUDA Array texture memory 
-  cudaArray* cuda_array_;
+  shared_ptr<cudaArray> cuda_array_;
+  //texture object interface to fetch texture memory 
   cudaTextureObject_t tex_obj_;
+  //channel format descriptor to create cuda array 
   cudaChannelFormatDesc channel_desc_;
+  //cuda resource descriptor that is used to create texture object 
   cudaResourceDesc res_desc_;
+  //cuda texture descriptor that is used to create texture object
   cudaTextureDesc tex_desc_;
-  bool internalAllocatedArray_{false};
   bool valid_data_in_tex{false};
   bool valid_texture_obj_{false};
-  
-  
 };
 }
 

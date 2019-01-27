@@ -6,6 +6,7 @@ void CudaMat::allocate()
 {
   cudaError_t err;
   bool leagal_type=true;
+  unsigned char* data;
   switch(type_){
     //8bit unsigned char 
     case CV_8U:
@@ -36,7 +37,10 @@ void CudaMat::allocate()
       break;
   }
   if(err==cudaSuccess && leagal_type==true){
-    internalAllocated_ = true;
+    //store the pointer to shared_ptr
+    cuda_mem_ = shared_ptr<unsigned char>(data,cudaFree);
+  } else{
+    fprintf(stderr,"[CUDA] CUDA Allocation Error");
   }
 }
 
@@ -44,22 +48,22 @@ void CudaMat::allocateArray(){
   cudaError_t err;
   bool leagal_type=true;
   cudaChannelFormatDesc channelDesc;
-  
+  cudaArray* arrayPtr;
   switch(type_){
     //8bit unsigned char 
     case CV_8U:
       channelDesc = cudaCreateChannelDesc(8, 0, 0, 0, cudaChannelFormatKindUnsigned);
-      err = CudaSafeCall(cudaMallocArray(&cuda_array_, &channelDesc, cols_, rows_));
+      err = CudaSafeCall(cudaMallocArray(&arrayPtr, &channelDesc, cols_, rows_));
       channel_desc_ = channelDesc;
       break;
     case CV_32S:
       channelDesc = cudaCreateChannelDesc(32, 0, 0, 0, cudaChannelFormatKindSigned);
-      err = CudaSafeCall(cudaMallocArray(&cuda_array_, &channelDesc, cols_, rows_));
+      err = CudaSafeCall(cudaMallocArray(&arrayPtr, &channelDesc, cols_, rows_));
       channel_desc_ = channelDesc;
       break;
     case CV_32F:
       channelDesc = cudaCreateChannelDesc(32, 0, 0, 0, cudaChannelFormatKindFloat);
-      err = CudaSafeCall(cudaMallocArray(&cuda_array_, &channelDesc, cols_, rows_));
+      err = CudaSafeCall(cudaMallocArray(&arrayPtr, &channelDesc, cols_, rows_));
       channel_desc_ = channelDesc;
       break;
     case CV_64F:
@@ -78,13 +82,16 @@ void CudaMat::allocateArray(){
     //set resourse descriptor
     memset(&res_desc_,0,sizeof(res_desc_));
     res_desc_.resType = cudaResourceTypeArray;
-    res_desc_.res.array.array = cuda_array_;
-    internalAllocatedArray_ = true;
+    res_desc_.res.array.array = arrayPtr;
+    cuda_array_ = shared_ptr<cudaArray>(arrayPtr,cudaFreeArray);
+  } else{
+    fprintf(stderr,"[CUDA] CUDA Array Texture Memory Allocation Error");
   }
   
 }
 
 void CudaMat::setTextureObjectInterface(cudaTextureDesc tex_desc){
+  checkArrayAllocation();
   tex_obj_ = 0;
   //store texture descriptor
   tex_desc_ = tex_desc;
@@ -93,18 +100,16 @@ void CudaMat::setTextureObjectInterface(cudaTextureDesc tex_desc){
 }
 
 void CudaMat::copyToArray(){
+  checkArrayAllocation();
   //copy internal data in Global Memory to Texture Memory
-  cudaMemcpy2DToArray(cuda_array_, 0, 0, (void*)data, pitch_bytes_, cols_ * depth_, rows_, cudaMemcpyDeviceToDevice);
+  cudaMemcpy2DToArray(cuda_array_.get() , 0, 0, (void*)cuda_mem_.get(), pitch_bytes_, cols_ * depth_, rows_, cudaMemcpyDeviceToDevice);
 }
 
 void CudaMat::writeDevice(void* hostmem, size_t hostpitch_bytes, int width, int height)
 {
-  if(data==NULL){
-    fprintf(stderr,"[CUDA] [Write Device], data not allocated\n");
-    return;
-  }
+  checkMemAllocation();
   if(width==cols_ && height==rows_){
-    cudaError_t err = CudaSafeCall(cudaMemcpy2D((void*)data, pitch_bytes_, (void*)hostmem, hostpitch_bytes, width*elemSize_, height, cudaMemcpyHostToDevice));
+    cudaError_t err = CudaSafeCall(cudaMemcpy2D((void*)cuda_mem_.get(), pitch_bytes_, (void*)hostmem, hostpitch_bytes, width*elemSize_, height, cudaMemcpyHostToDevice));
     if(err==cudaSuccess){
       printf("[CUDA] Wrote %i bytes data to Device\n", width*height*elemSize_);
     } 
@@ -118,12 +123,9 @@ void CudaMat::writeDevice(void* hostmem, size_t hostpitch_bytes, int width, int 
 
 void CudaMat::writeDeviceToArray(void* hostmem, size_t hostpitch_bytes, int width, int height)
 {
-  if(data==NULL){
-    fprintf(stderr,"[CUDA] [Write Device], data not allocated\n");
-    return;
-  }
+  checkArrayAllocation();
   if(width==cols_ && height==rows_){
-    cudaError_t err = CudaSafeCall(cudaMemcpy2DToArray(cuda_array_, 0, 0, hostmem, hostpitch_bytes, width * elemSize_, height, cudaMemcpyHostToDevice));
+    cudaError_t err = CudaSafeCall(cudaMemcpy2DToArray(cuda_array_.get(), 0, 0, hostmem, hostpitch_bytes, width * elemSize_, height, cudaMemcpyHostToDevice));
     if(err==cudaSuccess){
       printf("[CUDA] Wrote %i bytes data to Device\n", width*height*elemSize_);
     } 
@@ -135,12 +137,9 @@ void CudaMat::writeDeviceToArray(void* hostmem, size_t hostpitch_bytes, int widt
 }
 
 void CudaMat::readDevice(void* hostmem, size_t hostpitch_bytes, int width, int height){
-  if(data==NULL){
-    fprintf(stderr,"[CUDA] [Read Device], data not allocated\n");
-    return;
-  }
+  checkMemAllocation();
   if(width==cols_ && height==rows_){
-    cudaError_t err = CudaSafeCall(cudaMemcpy2D((void*)hostmem,hostpitch_bytes, (void*)data, pitch_bytes_, width*elemSize_,height, cudaMemcpyDeviceToHost));
+    cudaError_t err = CudaSafeCall(cudaMemcpy2D((void*)hostmem,hostpitch_bytes, (void*)cuda_mem_.get(), pitch_bytes_, width*elemSize_,height, cudaMemcpyDeviceToHost));
     if(err == cudaSuccess){
       printf("[CUDA] Read %i bytes data from Device\n", width*height*elemSize_);
     }
@@ -154,12 +153,9 @@ void CudaMat::readDevice(void* hostmem, size_t hostpitch_bytes, int width, int h
 
 
 void CudaMat::readDeviceFromArray(void* hostmem, size_t hostpitch_bytes, int width, int height){
-  if(data==NULL){
-    fprintf(stderr,"[CUDA] [Read Device], data not allocated\n");
-    return;
-  }
+  checkArrayAllocation();
   if(width==cols_ && height==rows_){
-    cudaError_t err = CudaSafeCall(cudaMemcpy2DFromArray((void*)hostmem, hostpitch_bytes, cuda_array_, 0, 0, width*elemSize_,height, cudaMemcpyDeviceToHost));
+    cudaError_t err = CudaSafeCall(cudaMemcpy2DFromArray((void*)hostmem, hostpitch_bytes, cuda_array_.get(), 0, 0, width*elemSize_,height, cudaMemcpyDeviceToHost));
     if(err == cudaSuccess){
       printf("[CUDA] Read %i bytes data from Device\n", width*height*elemSize_);
     }
@@ -191,35 +187,56 @@ void CudaMat::copyToMat(Mat& mat)
 }
 
 
+void CudaMat::checkMemAllocation() const{
+  if(cuda_mem_==nullptr){
+    fprintf(stderr, "[CUDA] CUDA Memory is Not Allocated");
+    exit(-1);
+  } 
+}
 
-__host__ __device__ const int CudaMat::rows() const{
+void CudaMat::checkArrayAllocation() const{
+  if(cuda_array_ == nullptr){
+    fprintf(stderr, "[CUDA] CUDA Array Texture Memory is Not Allocated");
+    exit(-1);
+  }
+}
+unsigned char* CudaMat::data() const{
+  checkMemAllocation();
+  return cuda_mem_.get();
+}
+const int CudaMat::rows() const{
   return rows_;
 }
-__host__ __device__ const int CudaMat::cols() const{
+const int CudaMat::cols() const{
   return cols_;
 }
-__host__ __device__ const size_t CudaMat::pitch_bytes() const{
+const size_t CudaMat::pitch_bytes() const{
+  checkMemAllocation();
   return pitch_bytes_;
 }
-__host__ __device__ const int CudaMat::depth() const{
+const int CudaMat::depth() const{
   return depth_;
 }
-__host__ __device__ const int CudaMat::type() const{
+const int CudaMat::type() const{
   return type_;
 }
-__host__ __device__ const int CudaMat::elemSize() const{
+const int CudaMat::elemSize() const{
   return elemSize_;
 }
-__host__ __device__ const cudaTextureObject_t CudaMat::texture_object() const{
+const cudaTextureObject_t CudaMat::texture_object() const{
+  checkArrayAllocation();
   return tex_obj_;
 }
-__host__ __device__ const cudaChannelFormatDesc CudaMat::channel_desc() const{
+const cudaChannelFormatDesc CudaMat::channel_desc() const{
+  checkArrayAllocation();
   return channel_desc_;
 }
-__host__ __device__ const cudaResourceDesc CudaMat::resource_desc() const{
+const cudaResourceDesc CudaMat::resource_desc() const{
+  checkArrayAllocation();
   return res_desc_;
 }
-__host__ __device__ const cudaTextureDesc CudaMat::texture_desc() const{
+const cudaTextureDesc CudaMat::texture_desc() const{
+  checkArrayAllocation();
   return tex_desc_;
 }
 }

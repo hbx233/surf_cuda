@@ -33,6 +33,8 @@ public:
    */
   void readDoHResponseMap(vector<Mat>& images_cpu);
   
+  void thresholdAndNonMaxSuppression();
+  
   void findKeyPoints();
   
   //number of levels(images) in the Octave

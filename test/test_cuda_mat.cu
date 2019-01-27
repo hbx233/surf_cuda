@@ -41,10 +41,10 @@ int main(){
   dim3 block(128,1,1);
   dim3 grid(rows/block_dim+1,1,1);
   
-  kernel_memset_1<unsigned char> <<<grid,block>>>(m_uchar_gpu.data, m_uchar_gpu.pitch_bytes(), m_uchar_gpu.rows(), m_uchar_gpu.cols());
-  kernel_memset_1<int> <<<grid,block>>>(m_int_gpu.data, m_int_gpu.pitch_bytes(), m_int_gpu.rows(), m_int_gpu.cols());
-  kernel_memset_1<float> <<<grid,block>>>(m_float_gpu.data, m_float_gpu.pitch_bytes(), m_float_gpu.rows(), m_float_gpu.cols());
-  kernel_memset_1<double> <<<grid,block>>>(m_double_gpu.data, m_double_gpu.pitch_bytes(), m_double_gpu.rows(), m_double_gpu.cols());
+  kernel_memset_1<unsigned char> <<<grid,block>>>(m_uchar_gpu.data(), m_uchar_gpu.pitch_bytes(), m_uchar_gpu.rows(), m_uchar_gpu.cols());
+  kernel_memset_1<int> <<<grid,block>>>(m_int_gpu.data(), m_int_gpu.pitch_bytes(), m_int_gpu.rows(), m_int_gpu.cols());
+  kernel_memset_1<float> <<<grid,block>>>(m_float_gpu.data(), m_float_gpu.pitch_bytes(), m_float_gpu.rows(), m_float_gpu.cols());
+  kernel_memset_1<double> <<<grid,block>>>(m_double_gpu.data(), m_double_gpu.pitch_bytes(), m_double_gpu.rows(), m_double_gpu.cols());
   
   m_uchar_gpu.copyToMat(m_uchar_cpu);
   m_int_gpu.copyToMat(m_int_cpu);
@@ -54,5 +54,4 @@ int main(){
   cout<<m_int_cpu<<endl;
   cout<<m_float_cpu<<endl;
   cout<<m_double_cpu<<endl;
-  
 }

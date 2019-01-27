@@ -52,8 +52,18 @@ struct DoHFilter_cpu{
   }
 };
 
-#define TEST_IMG 1
+Mat normalize(Mat map){
+  Mat norm = map.clone();
+  double max_val;
+  double min_val;
+  cout<<min_val<<' '<<max_val<<endl;
+  cv::minMaxLoc(norm,&min_val,&max_val);
+  norm = (norm-min_val)/(max_val - min_val);
+  return norm;
+}
 
+#define TEST_IMG 1
+#define PRINT 0
 int main(){
   Mat mat_in_cpu = Mat::ones(10,10,CV_32S);
 #if TEST_IMG 
@@ -105,27 +115,30 @@ int main(){
   //Stride two test
   Mat response_map_stride2_cpu = Mat::zeros(rows/2,cols/2,CV_32F);
   Mat response_map_stride2_gpu = Mat::zeros(rows/2,cols/2,CV_32F);
-  Mat response_map_stride2_gpu_tex = Mat::zeros(rows,cols,CV_32F);
+  Mat response_map_stride2_gpu_tex = Mat::zeros(rows/2,cols/2,CV_32F);
   CudaMat cuda_response_map_stride2(rows/2,cols/2,CV_32F);
   cuda_response_map_stride2.allocate();
-  CudaMat cuda_response_map_stride2_tex(rows, cols, CV_32F);
+  CudaMat cuda_response_map_stride2_tex(rows/2, cols/2, CV_32F);
   cuda_response_map_stride2_tex.allocate();
+  //===============================
+  //Stride four test
+  Mat response_map_stride4_cpu = Mat::zeros(rows/4,cols/4,CV_32F);
+  Mat response_map_stride4_gpu = Mat::zeros(rows/4,cols/4,CV_32F);
+  Mat response_map_stride4_gpu_tex = Mat::zeros(rows/4,cols/4,CV_32F);
+  CudaMat cuda_response_map_stride4(rows/4,cols/4,CV_32F);
+  cuda_response_map_stride4.allocate();
+  CudaMat cuda_response_map_stride4_tex(rows/4, cols/4, CV_32F);
+  cuda_response_map_stride4_tex.allocate();
+  //===============================
+  //Stride eight test
+  Mat response_map_stride8_cpu = Mat::zeros(rows/8,cols/8,CV_32F);
+  Mat response_map_stride8_gpu = Mat::zeros(rows/8,cols/8,CV_32F);
+  Mat response_map_stride8_gpu_tex = Mat::zeros(rows/8,cols/8,CV_32F);
+  CudaMat cuda_response_map_stride8(rows/8,cols/8,CV_32F);
+  cuda_response_map_stride8.allocate();
+  CudaMat cuda_response_map_stride8_tex(rows/8, cols/8, CV_32F);
+  cuda_response_map_stride8_tex.allocate();
   
-  //Channel Descriptor for cuda Array 
-  //cudaChannelFormatDesc channelDesc =
-  //cudaCreateChannelDesc(32, 0, 0, 0,
-  //			cudaChannelFormatKindSigned);
-  //Allocate texture memory 
-  //cudaArray* cuda_array_integral;
-  //cudaMallocArray(&cuda_array_integral, &channelDesc, cols, rows);
-  
-  //Create texture object 
-  // Specify texture
-  //cudaResourceDesc resDesc;
-  //memset(&resDesc, 0, sizeof(resDesc));
-  //resDesc.resType = cudaResourceTypeArray;
-  //resDesc.res.array.array = cuda_array_integral;
-
   // Specify texture object parameters
   cudaTextureDesc texDesc;
   memset(&texDesc, 0, sizeof(texDesc));
@@ -159,7 +172,7 @@ int main(){
   //=====================================
   //Compute Blob response Map Using Texture Memory 
   cpu_timer.elapsedTimeStart();
-  compDoHResponseMap_texture(cuda_mat_integral.texture_object(),rows, cols, cuda_response_map_stride1_tex,doh_filter_gpu,1);
+  compDoHResponseMap_texture(cuda_mat_integral,cuda_response_map_stride1_tex,doh_filter_gpu,1);
   cpu_timer.elapsedTimeStop();
   //=====================================
   //Compute Blob response Map Using GPU
@@ -167,30 +180,53 @@ int main(){
   doh_filter_cpu(mat_in_cpu,response_map_stride1_cpu);
   cpu_timer.elapsedTimeStop();
   
+  cout<<"Compute Stride 2"<<endl;
   compDoHResponseMap(cuda_mat_integral,cuda_response_map_stride2,doh_filter_gpu,2);
-  
+  compDoHResponseMap_texture(cuda_mat_integral,cuda_response_map_stride2_tex,doh_filter_gpu,2);
+  cout<<"Compute Stride 4"<<endl;
+  compDoHResponseMap(cuda_mat_integral,cuda_response_map_stride4,doh_filter_gpu,4);
+  compDoHResponseMap_texture(cuda_mat_integral,cuda_response_map_stride4_tex,doh_filter_gpu,4);
+  cout<<"Compute Stride 8"<<endl;
+  compDoHResponseMap(cuda_mat_integral,cuda_response_map_stride8,doh_filter_gpu,8);
+  compDoHResponseMap_texture(cuda_mat_integral,cuda_response_map_stride8_tex,doh_filter_gpu,8);
   //copy response map to host 
   cuda_response_map_stride1.copyToMat(response_map_stride1_gpu);
   cuda_response_map_stride1_tex.copyToMat(response_map_stride1_gpu_tex);
   cuda_response_map_stride2.copyToMat(response_map_stride2_gpu);
-  
+  cuda_response_map_stride2_tex.copyToMat(response_map_stride2_gpu_tex);
+  cuda_response_map_stride4.copyToMat(response_map_stride4_gpu);
+  cuda_response_map_stride4_tex.copyToMat(response_map_stride4_gpu_tex);
+  cuda_response_map_stride8.copyToMat(response_map_stride8_gpu);
+  cuda_response_map_stride8_tex.copyToMat(response_map_stride8_gpu_tex);
   //compare 
   compare(response_map_stride1_cpu,response_map_stride1_gpu);
   compare(response_map_stride1_cpu,response_map_stride1_gpu_tex);
-#if 0
+  compare(response_map_stride2_gpu,response_map_stride2_gpu_tex);
+  compare(response_map_stride4_gpu,response_map_stride4_gpu_tex);
+  compare(response_map_stride8_gpu,response_map_stride8_gpu_tex);
+#if 1
   cv::namedWindow("CPU DoH");
   cv::namedWindow("GPU DoH");
   cv::namedWindow("GPU DoH stride2");
-  cv::imshow("CPU DoH",response_map_stride1_cpu/255);
-  cv::imshow("GPU DoH",response_map_stride1_gpu/255);
-  cv::imshow("GPU DoH stride2",response_map_stride2_gpu/255);
+  cv::imshow("CPU DoH",normalize(response_map_stride1_cpu));
+  cv::imshow("GPU DoH",normalize(response_map_stride1_gpu));
+  cv::imshow("GPU DoH stride2",normalize(response_map_stride2_gpu));
+  cv::imshow("GPU DoH stride2",normalize(response_map_stride2_gpu_tex));
+  cv::imshow("GPU DoH stride4",normalize(response_map_stride4_gpu));
+  cv::imshow("GPU DoH stride4",normalize(response_map_stride4_gpu_tex));
+  cv::imshow("GPU DoH stride8",normalize(response_map_stride8_gpu));
+  cv::imshow("GPU DoH stride8",normalize(response_map_stride8_gpu_tex));
+  cv::imwrite("./image/doh_map.png",response_map_stride1_gpu);
   cv::waitKey(0);
 #endif
-#if 0
+#if PRINT
   cout<<response_map_stride1_cpu<<endl;
   cout<<response_map_stride1_gpu<<endl;
   cout<<response_map_stride1_gpu_tex<<endl;
   cout<<response_map_stride1_gpu-response_map_stride1_gpu_tex<<endl;
   //cout<<response_map_stride1_cpu - response_map_stride1_gpu<<endl;
+  cout<<response_map_stride2_cpu<<endl;
+  cout<<response_map_stride2_gpu<<endl;
+  cout<<response_map_stride2_gpu_tex<<endl;
 #endif
 }

@@ -314,6 +314,6 @@ struct DoHFilter{
    * @param img_integral Reference to input integral image whose data is already allocated on device memory
    * @param img_doh_response Reference to output integral image whose data is already allocated on device memory 
    */
-  void compDoHResponseMap_texture(cudaTextureObject_t integral_tex, const int& integral_rows, const int& integral_cols, const CudaMat& img_doh_response, const DoHFilter& doh_filter, const int& stride);
+  void compDoHResponseMap_texture(const CudaMat& img_integral, const CudaMat& img_doh_response, const DoHFilter& doh_filter, const int& stride);
 }
 #endif

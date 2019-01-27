@@ -58,17 +58,13 @@ void SURF::compIntegralImage(const CudaMat& img_in, const CudaMat& img_integral)
   size_t block_dim_x_col = 128;
   dim3 block_row(block_dim_x_row,1,1);
   dim3 grid_row(img_in.cols()/block_dim_x_row + 1,1,1);
-  compRowIntegral<int> <<<block_row,grid_row>>>(img_in.data, img_integral.data,img_in.rows(), img_in.cols(), img_in.pitch_bytes());
+  compRowIntegral<int> <<<block_row,grid_row>>>(img_in.data(), img_integral.data(),img_in.rows(), img_in.cols(), img_in.pitch_bytes());
   //sync
   cudaDeviceSynchronize();
   //then compute integral along cols
   dim3 block_col(block_dim_x_col,1,1);
   dim3 grid_col(img_in.rows()/block_dim_x_col + 1,1,1);
-  compColIntegral<int> <<<block_row, grid_row>>>(img_integral.data, img_integral.data,img_integral.rows(), img_integral.cols(), img_integral.pitch_bytes());
+  compColIntegral<int> <<<block_row, grid_row>>>(img_integral.data(), img_integral.data(),img_integral.rows(), img_integral.cols(), img_integral.pitch_bytes());
   cudaDeviceSynchronize();
 }
-
-
-
-
 }
