@@ -124,17 +124,17 @@ surf_cuda/fast:
 .PHONY : surf_cuda/fast
 
 #=============================================================================
-# Target rules for targets named test_DoH
+# Target rules for targets named test_octave
 
 # Build rule for target.
-test_DoH: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 test_DoH
-.PHONY : test_DoH
+test_octave: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 test_octave
+.PHONY : test_octave
 
 # fast build rule for target.
-test_DoH/fast:
-	$(MAKE) -f test/CMakeFiles/test_DoH.dir/build.make test/CMakeFiles/test_DoH.dir/build
-.PHONY : test_DoH/fast
+test_octave/fast:
+	$(MAKE) -f test/CMakeFiles/test_octave.dir/build.make test/CMakeFiles/test_octave.dir/build
+.PHONY : test_octave/fast
 
 #=============================================================================
 # Target rules for targets named test_cuda_mat
@@ -171,7 +171,7 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
 	@echo "... surf_cuda"
-	@echo "... test_DoH"
+	@echo "... test_octave"
 	@echo "... test_cuda_mat"
 	@echo "... test_integral"
 .PHONY : help

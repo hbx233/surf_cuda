@@ -21,8 +21,8 @@
 },
 {
   "directory": "/home/hbx/git/surf_cuda/build/test",
-  "command": "/usr/local/cuda/bin/nvcc   -I/home/hbx/git/surf_cuda/include -isystem=/opt/ros/kinetic/include/opencv-3.3.1-dev -isystem=/opt/ros/kinetic/include/opencv-3.3.1-dev/opencv  -O3 -DNDEBUG   -std=c++11 -x cu -c /home/hbx/git/surf_cuda/test/test_DoH.cu -o CMakeFiles/test_DoH.dir/test_DoH.cu.o",
-  "file": "/home/hbx/git/surf_cuda/test/test_DoH.cu"
+  "command": "/usr/local/cuda/bin/nvcc   -I/home/hbx/git/surf_cuda/include -isystem=/opt/ros/kinetic/include/opencv-3.3.1-dev -isystem=/opt/ros/kinetic/include/opencv-3.3.1-dev/opencv  -O3 -DNDEBUG   -std=c++11 -x cu -c /home/hbx/git/surf_cuda/test/test_octave.cu -o CMakeFiles/test_octave.dir/test_octave.cu.o",
+  "file": "/home/hbx/git/surf_cuda/test/test_octave.cu"
 },
 {
   "directory": "/home/hbx/git/surf_cuda/build/test",

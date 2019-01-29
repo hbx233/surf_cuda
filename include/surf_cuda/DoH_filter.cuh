@@ -3,6 +3,10 @@
 #include "surf_cuda/common.h"
 #include "surf_cuda/cuda_util.cuh"
 #include "surf_cuda/cuda_mat.h"
+
+#define USE_TEXTURE 1
+#define USE_GLOBAL 0
+
 namespace surf_cuda{
 
 /*!@brief: Fast computation of convolution with integral image \
@@ -49,6 +53,7 @@ struct WeightedRegionIntegral{
    * @return: the weighted sum (convolution with uniform weight)
    * @note: Returned value has the same type as elements in integral_mat
    */
+#if USE_GLOBAL
   __device__ T operator()(unsigned char* integral_mat, const size_t& pitch_bytes, const int& row_c, const int& col_c, const int& rows, const int& cols) const{
     //compute row address
     //get intersection of union to avoid exceeding the image region
@@ -93,7 +98,7 @@ struct WeightedRegionIntegral{
       }
     }
   }
-  
+#endif
   /*!@brief: Overload device function which calculate weighted Integral from integral image in Texture Memory to Improve performance  
    * @param integral_tex integral img texture object  
    * @param row_c central pixel's row coordinate 
@@ -104,6 +109,7 @@ struct WeightedRegionIntegral{
    * @note: Returned value has the same type as elements in integral_mat
    * @note: Assume the texture object is in border addressing mode, and point filtering mode, check the texture object's type in wrapper function 
    */
+#if USE_TEXTURE
   __device__ T operator()(cudaTextureObject_t integral_tex, const int& row_c, const int& col_c, const int& rows, const int& cols) const{
     int r1 = max(0,row_c+row_offset_1);
     int c1 = max(0,col_c+col_offset_1);
@@ -127,6 +133,7 @@ struct WeightedRegionIntegral{
 		    + tex2D<T>(integral_tex,c1-1,r1-1)
 	     );
   }
+#endif
 };
 
 /*!
@@ -164,11 +171,13 @@ struct BoxFilter_xx{
    * @param cols total columns of integral_mat
    * @return: the convolution of Approximated Gaussian second derivative with image, at pixel (row_c,col_c)
    */
+#if USE_GLOBAL
   __device__ T operator()(unsigned char* integral_mat, size_t pitch_bytes, int row_c, int col_c, int rows, int cols) const{
     return wri_1(integral_mat,pitch_bytes,row_c,col_c,rows,cols) 
 	     + wri_2(integral_mat,pitch_bytes,row_c,col_c,rows,cols)
 	       + wri_3(integral_mat,pitch_bytes,row_c,col_c,rows,cols);  
   }
+#endif
   /*!
    * @brief Overload device function that caculate the convolution of Approximated Gaussian sencond derivative along x direction
    * from integral image in Texture Memory
@@ -179,11 +188,13 @@ struct BoxFilter_xx{
    * @param cols total columns of integral_mat
    * @return: the convolution of Approximated Gaussian second derivative with image, at pixel (row_c,col_c)
    */
+#if USE_TEXTURE
   __device__ T operator()(cudaTextureObject_t integral_tex, const int& row_c, const int& col_c, const int& rows, const int& cols) const{
     return wri_1(integral_tex, row_c, col_c, rows, cols)
 	     + wri_2(integral_tex, row_c, col_c, rows, cols)
 	       + wri_3(integral_tex, row_c, col_c, rows, cols);
   }
+#endif
 };
 
 /*!
@@ -206,17 +217,21 @@ struct BoxFilter_yy{
       wri_3.setOffsets(-(size/3-1),  (size+3)/6, size/3-1,  (size-1)/2 );
     }
   }
+#if USE_GLOBAL
   __device__ T operator()(unsigned char* integral_mat, size_t pitch_bytes, int row_c, int col_c, int rows, int cols) const{
     return wri_1(integral_mat,pitch_bytes,row_c,col_c,rows,cols) + 
 	     wri_2(integral_mat,pitch_bytes,row_c,col_c,rows,cols) +
 	       wri_3(integral_mat,pitch_bytes,row_c,col_c,rows,cols);  
   }
+#endif
+
+#if USE_TEXTURE
   __device__ T operator()(cudaTextureObject_t integral_tex, const int& row_c, const int& col_c, const int& rows, const int& cols) const{
     return wri_1(integral_tex, row_c, col_c, rows, cols)
 	     + wri_2(integral_tex, row_c, col_c, rows, cols)
 	       + wri_3(integral_tex, row_c, col_c, rows, cols);
   }
-  
+#endif
 };
 
 /*!
@@ -240,18 +255,22 @@ struct BoxFilter_xy{
       wri_4.setOffsets( 1       ,  1       , (size/3), (size/3));
     }
   }
+#if USE_GLOBAL
   __device__ T operator()(unsigned char* integral_mat, size_t pitch_bytes, int row_c, int col_c, int rows, int cols) const{
     return wri_1(integral_mat,pitch_bytes,row_c,col_c,rows,cols) + 
 	     wri_2(integral_mat,pitch_bytes,row_c,col_c,rows,cols) +
 		wri_3(integral_mat,pitch_bytes,row_c,col_c,rows,cols) +  
 		  wri_4(integral_mat,pitch_bytes,row_c,col_c,rows,cols);  
   }
+#endif
+#if USE_TEXTURE
   __device__ T operator()(cudaTextureObject_t integral_tex, const int& row_c, const int& col_c, const int& rows, const int& cols) const{
     return wri_1(integral_tex, row_c, col_c, rows, cols)
 	     + wri_2(integral_tex, row_c, col_c, rows, cols)
 	       + wri_3(integral_tex, row_c, col_c, rows, cols)
 	         + wri_4(integral_tex, row_c, col_c, rows, cols);
   }
+#endif
 };
 /*!
  * @brief The wrapper for Determinant of Hessian filter \
@@ -281,11 +300,13 @@ struct DoHFilter{
    * @param cols total columns of integral_mat
    * @return: the Determinant of Hessian response of pixel at (row_c, col_c)
    */
+#if USE_GLOBAL
   __device__ float operator()(unsigned char* integral_mat, size_t pitch_bytes, int row_c, int col_c, int rows, int cols) const{
     return ((float)box_filter_xx(integral_mat, pitch_bytes, row_c, col_c, rows, cols) 
 	      * (float)box_filter_yy(integral_mat, pitch_bytes, row_c, col_c, rows, cols) 
-		 - powf(weight * (float)box_filter_xy(integral_mat, pitch_bytes, row_c, col_c, rows, cols),2))/(float)(size*size);
+		 - powf(weight * (float)box_filter_xy(integral_mat, pitch_bytes, row_c, col_c, rows, cols),2))/powf((float)size,4);
   }
+#endif
   /*!
    * @brief Overload top level device function that use Three BoxFilters' conv result to calculate the final Determinant of Hessian response for pixel (row_c, col_c)
    *        from integral image in Texture Memory 
@@ -296,11 +317,15 @@ struct DoHFilter{
    * @param cols total columns of integral_mat
    * @return: the Determinant of Hessian response of pixel at (row_c, col_c)
    */
+#if USE_TEXTURE
   __device__ float operator()(cudaTextureObject_t integral_tex, const int& row_c, const int& col_c, const int& rows, const int& cols) const{
+    //calculate weighted normalized determinant, note that we should divide size^4 here, cause we have to divide size^2 for each filter response 
+    //while determinant is the scale of filter response multiply filter response	
     return ((float)box_filter_xx(integral_tex, row_c, col_c, rows, cols)
               * (float)box_filter_yy(integral_tex, row_c, col_c, rows, cols)
-		 - powf(weight * (float)box_filter_xy(integral_tex, row_c, col_c, rows, cols),2))/(float)(size*size);
+		 - powf(weight * (float)box_filter_xy(integral_tex, row_c, col_c, rows, cols),2))/powf((float)(size),4);
   }
+#endif
 };
 
   /*!
@@ -308,12 +333,17 @@ struct DoHFilter{
    * @param img_integral Reference to input integral image whose data is already allocated on device memory
    * @param img_doh_response Reference to output integral image whose data is already allocated on device memory 
    */
+#if USE_GLOBAL
   void compDoHResponseMap(const CudaMat& img_integral, const CudaMat& img_doh_response, const DoHFilter& doh_filter ,const int& stride);
+#endif
   /*!
    * @brief Launch CUDA kernels to compute Determinant of Gaussian Blob response map from integral image in Texture Memory 
    * @param img_integral Reference to input integral image whose data is already allocated on device memory
-   * @param img_doh_response Reference to output integral image whose data is already allocated on device memory 
+   * @param img_doh_response Reference to output integral image whose data is already allocated on device memory
    */
+#if USE_TEXTURE
   void compDoHResponseMap_texture(const CudaMat& img_integral, const CudaMat& img_doh_response, const DoHFilter& doh_filter, const int& stride);
+
+#endif
 }
 #endif

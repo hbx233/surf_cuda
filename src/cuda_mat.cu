@@ -96,13 +96,16 @@ void CudaMat::setTextureObjectInterface(cudaTextureDesc tex_desc){
   //store texture descriptor
   tex_desc_ = tex_desc;
   //create texture object 
-  cudaCreateTextureObject(&tex_obj_, &res_desc_, &tex_desc_, NULL);
+  cudaError_t err = CudaSafeCall(cudaCreateTextureObject(&tex_obj_, &res_desc_, &tex_desc_, NULL));
+  if(err==cudaSuccess){
+    valid_texture_obj_=true;
+  }
 }
 
 void CudaMat::copyToArray(){
   checkArrayAllocation();
   //copy internal data in Global Memory to Texture Memory
-  cudaMemcpy2DToArray(cuda_array_.get() , 0, 0, (void*)cuda_mem_.get(), pitch_bytes_, cols_ * depth_, rows_, cudaMemcpyDeviceToDevice);
+  CudaSafeCall(cudaMemcpy2DToArray(cuda_array_.get() , 0, 0, (void*)cuda_mem_.get(), pitch_bytes_, cols_ * depth_, rows_, cudaMemcpyDeviceToDevice));
 }
 
 void CudaMat::writeDevice(void* hostmem, size_t hostpitch_bytes, int width, int height)
@@ -225,6 +228,10 @@ const int CudaMat::elemSize() const{
 }
 const cudaTextureObject_t CudaMat::texture_object() const{
   checkArrayAllocation();
+  if(valid_texture_obj_==false){
+    fprintf(stderr,"[CUDA] Invalid texture object");
+    exit(-1);
+  }
   return tex_obj_;
 }
 const cudaChannelFormatDesc CudaMat::channel_desc() const{

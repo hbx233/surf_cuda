@@ -79,21 +79,33 @@ struct GpuTimer{
   cudaEvent_t start_;
   cudaEvent_t stop_;
   cudaStream_t stream_;
+  bool started_{false};
   GpuTimer(cudaStream_t stream = 0):stream_(stream){
     cudaEventCreate(&start_);
     cudaEventCreate(&stop_);
-    cudaEventRecord(start_, stream_);
   }
   ~GpuTimer(){
     cudaEventDestroy(start_);
     cudaEventDestroy(stop_);
   }
-  float elapsedTime(){
-    cudaEventRecord(stop_,stream_);
-    cudaEventSynchronize(stop_);
-    float t;
-    cudaEventElapsedTime(&t, start_, stop_);
-    return t;
+  void elapsedTimeStart(){
+    cout<<"[GPU Timer] Timer Start"<<endl;
+    cudaEventRecord(start_,stream_);
+    started_ = true;
+  }
+  float elapsedTimeStop(){
+    if(started_==true){
+      cudaEventRecord(stop_,stream_);
+      cudaEventSynchronize(stop_);
+      float elapsed_t;
+      cudaEventElapsedTime(&elapsed_t,start_,stop_);
+      cout<<"[GPU Timer] Elapsed Time from Latest elapsedTimeStart Function: "<<elapsed_t<<"ms"<<endl;
+      started_ = false;
+      return elapsed_t;
+    } else{
+      cerr<<"[GPU Timer] Have to Call elapsedTimeStart before calling elapsedTimeStop"<<endl;
+      return -1;
+    }
   }
   
 };
@@ -105,6 +117,7 @@ struct CpuTimer{
   CpuTimer(){
   }
   void elapsedTimeStart(){
+    cout<<"[CPU Timer] Timer Start"<<endl;
     start_ = high_resolution_clock::now();
     started_ = true;
   }
@@ -113,11 +126,11 @@ struct CpuTimer{
       stop_ = high_resolution_clock::now();
       auto elapsed_ = stop_-start_;
       auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed_).count();
-      cout<<"[Timer] Elapsed Time from Latest elapsedTimeStart Function: "<<ms<<"ms"<<endl;
+      cout<<"[CPU Timer] Elapsed Time from Latest elapsedTimeStart Function: "<<ms<<"ms"<<endl;
       started_ = false;
       return static_cast<float>(ms);
     } else{
-      cerr<<"[Timer] Have to Call elapsedTimeStart before calling elapsedTimeStop"<<endl;
+      cerr<<"[CPU Timer] Have to Call elapsedTimeStart before calling elapsedTimeStop"<<endl;
       return -1;
     }
   }

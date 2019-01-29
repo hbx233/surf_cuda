@@ -37,10 +37,19 @@ struct DoHFilter_cpu{
     cv::multiply(filter_map_xx,filter_map_yy,temp1,1);
     Mat temp2;
     cv::pow(filter_map_xy*weight,2,temp2);
-    dst = (temp1 - temp2)/(float)(size*size);
+    dst = (temp1 - temp2)/(float)(size*size*size*size);
   }
 };
 
+Mat normalize(Mat map){
+  Mat norm = map.clone();
+  double max_val;
+  double min_val;
+  cv::minMaxLoc(norm,&min_val,&max_val);
+  cout<<min_val<<' '<<max_val<<endl;
+  norm = (norm-min_val)/(float)(max_val - min_val);
+  return norm;
+}
 #define TEST_IMG 1
 
 int main(){
@@ -57,45 +66,93 @@ int main(){
   //convert image type from CV_8U to CV_32F
   gray_img.convertTo(mat_in, CV_32S);
 #else
-  mat_in = Mat::ones(1080,1920,CV_32S)*255;
+  mat_in = Mat::ones(10,20,CV_32S);
 #endif
   //get image size 
   const int rows = mat_in.rows;
   const int cols = mat_in.cols;
-  CudaMat cuda_mat_in(mat_in);
-  CudaMat cuda_mat_integral(mat_in);
+  CudaMat cuda_mat_in(rows,cols,CV_32S);
+  CudaMat cuda_mat_integral(rows,cols,CV_32S);
   cuda_mat_in.allocate();
   cuda_mat_integral.allocate();
+  cuda_mat_integral.allocateArray();
   //compute integral image 
   SURF surf;
-  //create octave
+  //create octaves
   Octave octave_1(rows,cols,1,{9,15,21,27});
   Octave octave_2(rows/2, cols/2, 2, {15,27,39,51});
   Octave octave_3(rows/4, cols/4, 4, {27,51,75,99});
-  //allocate octave 
-  octave_1.allocate();
-  octave_2.allocate();
-  octave_3.allocate();
+  //allocate octave in Global memory and Texture Memory 
+  octave_1.allocateMemAndArray();
+  octave_2.allocateMemAndArray();
+  octave_3.allocateMemAndArray();
   //compute integral image
+  //copy image from host to device 
+  cuda_mat_in.copyFromMat(mat_in);
+  //compute integral image 
   surf.compIntegralImage(cuda_mat_in,cuda_mat_integral);
-  //fill octaves 
+  //Mat integral(rows,cols,CV_32S);
+  //cuda_mat_integral.copyToMat(integral);
+  //cout<<integral<<endl;
+  //copy integral image to texture memory 
+  cuda_mat_integral.copyToArray();
+  // Specify texture object parameters
+  cudaTextureDesc texDesc;
+  memset(&texDesc, 0, sizeof(texDesc));
+  texDesc.addressMode[0]   = cudaAddressModeBorder;
+  texDesc.addressMode[1]   = cudaAddressModeBorder;
+  texDesc.filterMode       = cudaFilterModePoint;
+  texDesc.readMode         = cudaReadModeElementType;
+  texDesc.normalizedCoords = 0;
+  
+  //set texture object 
+  cuda_mat_integral.setTextureObjectInterface(texDesc);
+  //set texture 
+  //fill octaves with DoH resopnse maps 
+  GpuTimer gpu_timer;
+  gpu_timer.elapsedTimeStart();
   octave_1.fill(cuda_mat_integral);
   octave_2.fill(cuda_mat_integral);
   octave_3.fill(cuda_mat_integral);
+  gpu_timer.elapsedTimeStop();
+#if 1
+  gpu_timer.elapsedTimeStart();
+  octave_1.copyResponseMapsToArray();
+  octave_2.copyResponseMapsToArray();
+  octave_3.copyResponseMapsToArray();
+  gpu_timer.elapsedTimeStop();
+  
+  gpu_timer.elapsedTimeStart();
+  octave_1.thresholdAndNonMaxSuppression();
+  octave_2.thresholdAndNonMaxSuppression();
+  octave_3.thresholdAndNonMaxSuppression();
+  gpu_timer.elapsedTimeStop();
+#endif
   //read octave results
   vector<Mat> octave_response_1;
   vector<Mat> octave_response_2;
   vector<Mat> octave_response_3;
-  octave_1.readDoHResponseMap(octave_response_1);
+  //octave_1.readDoHResponseMap(octave_response_1);
   octave_2.readDoHResponseMap(octave_response_2);
   octave_3.readDoHResponseMap(octave_response_3);
-  //show image 
+  octave_1.readDoHResponseMapAfterSupression(octave_response_1);
+  //show image
+  cout<<octave_response_1.size();
   cv::namedWindow("1");
-  cv::namedWindow("2");
-  cv::namedWindow("3");
-  cv::imshow("1",octave_response_1[1]);
-  cv::imshow("2",octave_response_2[1]);
-  cv::imshow("3",octave_response_3[1]);
-  
-  
+  cv::imshow("1",normalize(octave_response_1[1]));
+  cv::waitKey(0);
+#if 0
+  cv::imwrite("./image/octave_1_level_1.png",normalize(octave_response_1[0])*255);
+  cv::imwrite("./image/octave_1_level_2.png",normalize(octave_response_1[1])*255);
+  cv::imwrite("./image/octave_1_level_3.png",normalize(octave_response_1[2])*255);
+  cv::imwrite("./image/octave_1_level_4.png",normalize(octave_response_1[3])*255);
+  cv::imwrite("./image/octave_2_level_1.png",normalize(octave_response_2[0])*255);
+  cv::imwrite("./image/octave_2_level_2.png",normalize(octave_response_2[1])*255);
+  cv::imwrite("./image/octave_2_level_3.png",normalize(octave_response_2[2])*255);
+  cv::imwrite("./image/octave_2_level_4.png",normalize(octave_response_2[3])*255);
+  cv::imwrite("./image/octave_3_level_1.png",normalize(octave_response_3[0])*255);
+  cv::imwrite("./image/octave_3_level_2.png",normalize(octave_response_3[1])*255);
+  cv::imwrite("./image/octave_3_level_3.png",normalize(octave_response_3[2])*255);
+  cv::imwrite("./image/octave_3_level_4.png",normalize(octave_response_3[3])*255);
+#endif
 }

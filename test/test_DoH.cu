@@ -39,7 +39,7 @@ struct DoHFilter_cpu{
     cv::multiply(filter_map_xx,filter_map_yy,temp1,1);
     Mat temp2;
     cv::pow(filter_map_xy*weight,2,temp2);
-    dst = (temp1 - temp2)/(float)(size*size);
+    dst = (temp1 - temp2)/(float)(size*size*size*size);
   }
   void box_filter_xx(Mat src, Mat& dst){
     cv::filter2D(src,dst,CV_32F,kernel_xx,cv::Point(-1,-1),0,cv::BORDER_CONSTANT);
@@ -56,9 +56,9 @@ Mat normalize(Mat map){
   Mat norm = map.clone();
   double max_val;
   double min_val;
-  cout<<min_val<<' '<<max_val<<endl;
   cv::minMaxLoc(norm,&min_val,&max_val);
-  norm = (norm-min_val)/(max_val - min_val);
+  cout<<min_val<<' '<<max_val<<endl;
+  norm = (norm-min_val)/(float)(max_val - min_val);
   return norm;
 }
 
@@ -152,28 +152,29 @@ int main(){
   cuda_mat_integral.setTextureObjectInterface(texDesc);
   
   //create timer
+  GpuTimer gpu_timer;
   CpuTimer cpu_timer;
   //=====================================
   //compute integral image
-  cpu_timer.elapsedTimeStart();
+  gpu_timer.elapsedTimeStart();
   surf.compIntegralImage(cuda_mat_in, cuda_mat_integral);
-  cpu_timer.elapsedTimeStop();
+  gpu_timer.elapsedTimeStop();
   //=====================================
   //copy integral image from global memory to texture memory 
-  cpu_timer.elapsedTimeStart();
+  gpu_timer.elapsedTimeStart();
   //cudaMemcpy2DToArray(cuda_array_integral, 0, 0, (void*)cuda_mat_integral.data, cuda_mat_integral.pitch_bytes(), cuda_mat_integral.cols() * sizeof(int), cuda_mat_integral.rows(), cudaMemcpyDeviceToDevice);
   cuda_mat_integral.copyToArray();
-  cpu_timer.elapsedTimeStop();
+  gpu_timer.elapsedTimeStop();
   //=====================================
   //Compute Blob response Map Using Global Memory 
-  cpu_timer.elapsedTimeStart();
+  gpu_timer.elapsedTimeStart();
   compDoHResponseMap(cuda_mat_integral,cuda_response_map_stride1,doh_filter_gpu,1);
-  cpu_timer.elapsedTimeStop();
+  gpu_timer.elapsedTimeStop();
   //=====================================
   //Compute Blob response Map Using Texture Memory 
-  cpu_timer.elapsedTimeStart();
+  gpu_timer.elapsedTimeStart();
   compDoHResponseMap_texture(cuda_mat_integral,cuda_response_map_stride1_tex,doh_filter_gpu,1);
-  cpu_timer.elapsedTimeStop();
+  gpu_timer.elapsedTimeStop();
   //=====================================
   //Compute Blob response Map Using GPU
   cpu_timer.elapsedTimeStart();

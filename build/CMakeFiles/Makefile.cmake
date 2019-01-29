@@ -53,7 +53,7 @@ set(CMAKE_MAKEFILE_PRODUCTS
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
   "src/CMakeFiles/surf_cuda.dir/DependInfo.cmake"
-  "test/CMakeFiles/test_DoH.dir/DependInfo.cmake"
+  "test/CMakeFiles/test_octave.dir/DependInfo.cmake"
   "test/CMakeFiles/test_cuda_mat.dir/DependInfo.cmake"
   "test/CMakeFiles/test_integral.dir/DependInfo.cmake"
   )

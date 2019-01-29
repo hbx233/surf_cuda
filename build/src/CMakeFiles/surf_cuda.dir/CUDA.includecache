@@ -56,6 +56,10 @@ surf_cuda/cuda_mat.h
 surf_cuda/DoH_filter.cuh
 ../include/surf_cuda/surf_cuda/DoH_filter.cuh
 
+/home/hbx/git/surf_cuda/src/DoH_filter.cu
+surf_cuda/DoH_filter.cuh
+/home/hbx/git/surf_cuda/src/surf_cuda/DoH_filter.cuh
+
 /home/hbx/git/surf_cuda/src/octave.cu
 surf_cuda/octave.h
 /home/hbx/git/surf_cuda/src/surf_cuda/octave.h
