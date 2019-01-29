@@ -11,7 +11,7 @@ Tested using 1920x1080 image on GTX 1060 GPU, with 3 Octaves and each octave con
 | Process                                                 | Computation Time |
 | ------------------------------------------------------- | ---------------- |
 | Integral Image                                          | 1ms              |
-| Fill all level of octaves                               | 6ms              |
+| Fill all octaves                                        | 6ms              |
 | Thresholding, Non-max suppression and extract keypoints | 0.7ms            |
 
 ## Result
