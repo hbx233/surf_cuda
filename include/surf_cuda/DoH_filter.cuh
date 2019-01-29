@@ -5,7 +5,7 @@
 #include "surf_cuda/cuda_mat.h"
 
 #define USE_TEXTURE 1
-#define USE_GLOBAL 0
+#define USE_GLOBAL 1
 
 namespace surf_cuda{
 

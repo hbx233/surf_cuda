@@ -45,10 +45,10 @@ void compDoHResponseMap(const CudaMat& img_integral, const CudaMat& img_doh_resp
 #if USE_TEXTURE
 __global__ void kernel_DoH_Filter_texture(cudaTextureObject_t integral_tex, int integral_rows, int integral_cols, unsigned char* response_mat, size_t response_pitch_bytes, int response_rows, int response_cols, int stride, DoHFilter doh_filter){
     //Just one kernel per row's computation 
-    int row_response_idx = threadIdx.x + blockDim.x * blockIdx.x;
+    int row_response_idx = threadIdx.y + blockDim.y * blockIdx.y;
     if(row_response_idx<response_rows){
       //response map's row pointer 
-      int col_response_idx = threadIdx.y + blockDim.y * blockIdx.y;
+      int col_response_idx = threadIdx.x + blockDim.x * blockIdx.x;
       if(col_response_idx<response_cols){
         float* row_response_addr = (float*)(response_mat + row_response_idx * response_pitch_bytes);
         row_response_addr[col_response_idx] = doh_filter(integral_tex, row_response_idx*stride, col_response_idx*stride, integral_rows, integral_cols); 
@@ -84,10 +84,10 @@ void compDoHResponseMap_texture(const CudaMat& img_integral, const CudaMat& img_
     {
       //check if texture height and width are compatible with stride and response rows and cols 
       if(img_integral.rows()/stride == img_doh_response.rows() && img_integral.cols()/stride == img_doh_response.cols()){
-	size_t block_dim_x = 24;
-	size_t block_dim_y = 24;
+	size_t block_dim_x = 64;
+	size_t block_dim_y = 10;
         dim3 block(block_dim_x,block_dim_y,1);
-        dim3 grid(img_doh_response.rows()/block_dim_x + 1,img_doh_response.cols()/block_dim_y+1,1);
+        dim3 grid(img_doh_response.cols()/block_dim_x+1,img_doh_response.rows()/block_dim_y + 1,1);
         kernel_DoH_Filter_texture<<<grid,block>>> (img_integral.texture_object(),img_integral.rows(),img_integral.cols(),img_doh_response.data(), img_doh_response.pitch_bytes(),img_doh_response.rows(),img_doh_response.cols(),stride, doh_filter);
         CudaCheckError();
         cudaDeviceSynchronize();

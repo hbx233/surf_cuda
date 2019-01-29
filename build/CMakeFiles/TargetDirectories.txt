@@ -4,7 +4,8 @@
 /home/hbx/git/surf_cuda/build/src/CMakeFiles/edit_cache.dir
 /home/hbx/git/surf_cuda/build/src/CMakeFiles/surf_cuda.dir
 /home/hbx/git/surf_cuda/build/test/CMakeFiles/rebuild_cache.dir
+/home/hbx/git/surf_cuda/build/test/CMakeFiles/edit_cache.dir
+/home/hbx/git/surf_cuda/build/test/CMakeFiles/test_DoH.dir
 /home/hbx/git/surf_cuda/build/test/CMakeFiles/test_octave.dir
 /home/hbx/git/surf_cuda/build/test/CMakeFiles/test_cuda_mat.dir
 /home/hbx/git/surf_cuda/build/test/CMakeFiles/test_integral.dir
-/home/hbx/git/surf_cuda/build/test/CMakeFiles/edit_cache.dir

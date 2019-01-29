@@ -111,6 +111,21 @@ depend:
 .PHONY : depend
 
 # Convenience name for target.
+test/CMakeFiles/test_DoH.dir/rule:
+	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f CMakeFiles/Makefile2 test/CMakeFiles/test_DoH.dir/rule
+.PHONY : test/CMakeFiles/test_DoH.dir/rule
+
+# Convenience name for target.
+test_DoH: test/CMakeFiles/test_DoH.dir/rule
+
+.PHONY : test_DoH
+
+# fast build rule for target.
+test_DoH/fast:
+	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f test/CMakeFiles/test_DoH.dir/build.make test/CMakeFiles/test_DoH.dir/build
+.PHONY : test_DoH/fast
+
+# Convenience name for target.
 test/CMakeFiles/test_octave.dir/rule:
 	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f CMakeFiles/Makefile2 test/CMakeFiles/test_octave.dir/rule
 .PHONY : test/CMakeFiles/test_octave.dir/rule
@@ -154,6 +169,33 @@ test_integral: test/CMakeFiles/test_integral.dir/rule
 test_integral/fast:
 	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f test/CMakeFiles/test_integral.dir/build.make test/CMakeFiles/test_integral.dir/build
 .PHONY : test_integral/fast
+
+test_DoH.o: test_DoH.cu.o
+
+.PHONY : test_DoH.o
+
+# target to build an object file
+test_DoH.cu.o:
+	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f test/CMakeFiles/test_DoH.dir/build.make test/CMakeFiles/test_DoH.dir/test_DoH.cu.o
+.PHONY : test_DoH.cu.o
+
+test_DoH.i: test_DoH.cu.i
+
+.PHONY : test_DoH.i
+
+# target to preprocess a source file
+test_DoH.cu.i:
+	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f test/CMakeFiles/test_DoH.dir/build.make test/CMakeFiles/test_DoH.dir/test_DoH.cu.i
+.PHONY : test_DoH.cu.i
+
+test_DoH.s: test_DoH.cu.s
+
+.PHONY : test_DoH.s
+
+# target to generate assembly for a file
+test_DoH.cu.s:
+	cd /home/hbx/git/surf_cuda/build && $(MAKE) -f test/CMakeFiles/test_DoH.dir/build.make test/CMakeFiles/test_DoH.dir/test_DoH.cu.s
+.PHONY : test_DoH.cu.s
 
 test_cuda_mat.o: test_cuda_mat.cu.o
 
@@ -243,10 +285,14 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... rebuild_cache"
+	@echo "... edit_cache"
+	@echo "... test_DoH"
 	@echo "... test_octave"
 	@echo "... test_cuda_mat"
 	@echo "... test_integral"
-	@echo "... edit_cache"
+	@echo "... test_DoH.o"
+	@echo "... test_DoH.i"
+	@echo "... test_DoH.s"
 	@echo "... test_cuda_mat.o"
 	@echo "... test_cuda_mat.i"
 	@echo "... test_cuda_mat.s"

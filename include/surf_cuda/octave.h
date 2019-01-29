@@ -5,7 +5,7 @@
 #include "surf_cuda/cuda_mat.h"
 #include "surf_cuda/DoH_filter.cuh"
 
-#define MAX_NUM_KEY_POINTS 1000
+#define MAX_NUM_KEY_POINTS 200
 
 namespace surf_cuda{
 class Octave{
@@ -65,6 +65,13 @@ public:
   vector<CudaMat> response_maps;//image levels
   vector<float> scales;//scales of every response map
   vector<DoHFilter> filters;//DoH filters for different level images
+  shared_ptr<float> cuda_keypoints_x;
+  shared_ptr<float> cuda_keypoints_y;
+  shared_ptr<int> cuda_curr_idx;
+  int keypoints_num;
+  float keypoints_x[MAX_NUM_KEY_POINTS];
+  float keypoints_y[MAX_NUM_KEY_POINTS];
+  
 };
 }
 #endif

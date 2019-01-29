@@ -3,44 +3,6 @@
 #include "surf_cuda/surf.h"
 using namespace surf_cuda;
 
-
-struct DoHFilter_cpu{
-  float weight{0.9};
-  int size;
-  Mat kernel_xx;
-  Mat kernel_xy;
-  Mat kernel_yy;
-  DoHFilter_cpu(int s):size(s){
-    //create kernels of approximated second derivative of Gaussian
-    kernel_xx = Mat::zeros(s,s,CV_32F);
-    kernel_xx(cv::Rect((size/3+1)/2,0,2*size/3 -1, size/3)).setTo(1);
-    kernel_xx(cv::Rect((size/3+1)/2,size/3,2*size/3 -1, size/3)).setTo(-2);
-    kernel_xx(cv::Rect((size/3+1)/2,2*size/3,2*size/3-1, size/3)).setTo(1);
-    //kernel_yy is the rotation of kernel_xx
-    cv::rotate(kernel_xx,kernel_yy,cv::ROTATE_90_CLOCKWISE);
-    //kernel_xy
-    kernel_xy = Mat::zeros(s,s,CV_32F);
-    kernel_xy(cv::Rect(size/6,size/6,size/3,size/3)).setTo(1);
-    kernel_xy(cv::Rect(size/2+1,size/6,size/3,size/3)).setTo(-1);
-    kernel_xy(cv::Rect(size/6,size/2+1,size/3,size/3)).setTo(-1);
-    kernel_xy(cv::Rect(size/2+1,size/2+1,size/3,size/3)).setTo(1);
-  }
-  void operator()(Mat src, Mat& dst){
-    Mat filter_map_xx;
-    Mat filter_map_xy;
-    Mat filter_map_yy;
-    //filter 
-    cv::filter2D(src,filter_map_xx,CV_32F,kernel_xx,cv::Point(-1,-1),0,cv::BORDER_CONSTANT);
-    cv::filter2D(src,filter_map_xy,CV_32F,kernel_xy,cv::Point(-1,-1),0,cv::BORDER_CONSTANT);
-    cv::filter2D(src,filter_map_yy,CV_32F,kernel_yy,cv::Point(-1,-1),0,cv::BORDER_CONSTANT);
-    Mat temp1;
-    cv::multiply(filter_map_xx,filter_map_yy,temp1,1);
-    Mat temp2;
-    cv::pow(filter_map_xy*weight,2,temp2);
-    dst = (temp1 - temp2)/(float)(size*size*size*size);
-  }
-};
-
 Mat normalize(Mat map){
   Mat norm = map.clone();
   double max_val;
@@ -52,11 +14,18 @@ Mat normalize(Mat map){
 }
 #define TEST_IMG 1
 
+void drawKeyPoints(const Octave& octave, Mat image){
+  cout<<"Keypoints size: "<<octave.keypoints_num<<endl;
+  for(int i=0;i<octave.keypoints_num;i++){
+    cv::circle(image,cv::Point(octave.keypoints_x[i],octave.keypoints_y[i]),2,cv::Scalar(0,0,200),2);
+  }
+}
+
 int main(){
 #if TEST_IMG
   //compute integral image 
   cv::Mat img;
-  img = cv::imread("./data/img1.png");
+  img = cv::imread("./data/img2.png");
   //convert image to gray scale image
   Mat gray_img;
   cv::cvtColor(img,gray_img,cv::COLOR_BGR2GRAY);
@@ -86,11 +55,17 @@ int main(){
   octave_1.allocateMemAndArray();
   octave_2.allocateMemAndArray();
   octave_3.allocateMemAndArray();
+  
+  //Gpu Timer
+  GpuTimer gpu_timer;
   //compute integral image
   //copy image from host to device 
+  
   cuda_mat_in.copyFromMat(mat_in);
   //compute integral image 
+  gpu_timer.elapsedTimeStart();
   surf.compIntegralImage(cuda_mat_in,cuda_mat_integral);
+  gpu_timer.elapsedTimeStop();
   //Mat integral(rows,cols,CV_32S);
   //cuda_mat_integral.copyToMat(integral);
   //cout<<integral<<endl;
@@ -109,7 +84,6 @@ int main(){
   cuda_mat_integral.setTextureObjectInterface(texDesc);
   //set texture 
   //fill octaves with DoH resopnse maps 
-  GpuTimer gpu_timer;
   gpu_timer.elapsedTimeStart();
   octave_1.fill(cuda_mat_integral);
   octave_2.fill(cuda_mat_integral);
@@ -132,15 +106,31 @@ int main(){
   vector<Mat> octave_response_1;
   vector<Mat> octave_response_2;
   vector<Mat> octave_response_3;
-  //octave_1.readDoHResponseMap(octave_response_1);
+  octave_1.readDoHResponseMap(octave_response_1);
   octave_2.readDoHResponseMap(octave_response_2);
   octave_3.readDoHResponseMap(octave_response_3);
-  octave_1.readDoHResponseMapAfterSupression(octave_response_1);
+  //octave_2.readDoHResponseMapAfterSupression(octave_response_2);
+  //octave_3.readDoHResponseMapAfterSupression(octave_response_3);
+  //octave_1.readDoHResponseMapAfterSupression(octave_response_1);
   //show image
-  cout<<octave_response_1.size();
+  //cout<<octave_response_1.size();
+  //draw keypoints on image 
+  drawKeyPoints(octave_1,img);
+  drawKeyPoints(octave_2,img);
+  drawKeyPoints(octave_3,img);
+  
   cv::namedWindow("1");
-  cv::imshow("1",normalize(octave_response_1[1]));
+  cv::imshow("1",img);
+  cv::imwrite("extracted_key_points2.png",img);
   cv::waitKey(0);
+#if 0
+  cv::imwrite("./image/octave_1_supression_1.png",normalize(octave_response_1[0])*255);
+  cv::imwrite("./image/octave_1_supression_2.png",normalize(octave_response_1[1])*255);
+  cv::imwrite("./image/octave_2_supression_1.png",normalize(octave_response_2[0])*255);
+  cv::imwrite("./image/octave_2_supression_2.png",normalize(octave_response_2[1])*255);
+  cv::imwrite("./image/octave_3_supression_1.png",normalize(octave_response_3[0])*255);
+  cv::imwrite("./image/octave_3_supression_2.png",normalize(octave_response_3[1])*255);
+#endif
 #if 0
   cv::imwrite("./image/octave_1_level_1.png",normalize(octave_response_1[0])*255);
   cv::imwrite("./image/octave_1_level_2.png",normalize(octave_response_1[1])*255);

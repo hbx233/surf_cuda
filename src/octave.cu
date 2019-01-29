@@ -23,6 +23,17 @@ void Octave::allocateMemAndArray()
     response_maps[i].allocate();
     response_maps[i].allocateArray();
   }
+  //allocate KeyPoints Array 
+  float* devPtr_x;
+  float* devPtr_y;
+  int* devPtr_idx;
+  CudaSafeCall(cudaMalloc(&devPtr_x,MAX_NUM_KEY_POINTS*sizeof(float)));
+  CudaSafeCall(cudaMalloc(&devPtr_y,MAX_NUM_KEY_POINTS*sizeof(float)));
+  CudaSafeCall(cudaMalloc(&devPtr_idx,sizeof(int)));
+  CudaSafeCall(cudaMemset(devPtr_idx,0,4));
+  cuda_keypoints_x = shared_ptr<float>(devPtr_x,cudaFree);
+  cuda_keypoints_y = shared_ptr<float>(devPtr_y,cudaFree);
+  cuda_curr_idx = shared_ptr<int>(devPtr_idx,cudaFree);
 }
 
 void Octave::fill(const CudaMat& integral_mat){
@@ -94,6 +105,7 @@ void Octave::readDoHResponseMapAfterSupression(vector< Mat >& images_cpu)
   }
 }
 
+
 __device__ float find_max_in_3x3_window(cudaTextureObject_t& map, int& row, int& col){
   float max_row_1 = fmaxf(fmaxf(tex2D<float>(map,col-1,row-1), tex2D<float>(map,col,row-1)), tex2D<float>(map,col+1,row-1));
   float max_row_2 = fmaxf(fmaxf(tex2D<float>(map,col-1,row  ), tex2D<float>(map,col,row  )), tex2D<float>(map,col+1,row  ));
@@ -106,7 +118,7 @@ __device__ float find_min_in_3x3_window(cudaTextureObject_t& map, int& row, int&
   float max_row_3 = fminf(fminf(tex2D<float>(map,col-1,row+1), tex2D<float>(map,col,row+1)), tex2D<float>(map,col+1,row+1));
   return fminf(fminf(max_row_1,max_row_2),max_row_3);
 }
-
+#if 0
 __global__ void kernel_threshold_nonMaxSuppression(cudaTextureObject_t map_low, cudaTextureObject_t map_mid, cudaTextureObject_t map_up, unsigned char* map_out, int rows, int cols, size_t out_pitch_bytes, float threshold){
   //assume texture object in clamp mode 
   //get the row index 
@@ -150,7 +162,51 @@ __global__ void kernel_threshold_nonMaxSuppression(cudaTextureObject_t map_low, 
     }
   }
 }
-
+#endif
+__global__ void kernel_threshold_nonMaxSuppression(cudaTextureObject_t map_low, cudaTextureObject_t map_mid, cudaTextureObject_t map_up, float* keypoints_x, float* keypoints_y, int* keypoints_idx, int rows, int cols, float threshold,int stride){
+  //assume texture object in clamp mode 
+  //get the row index 
+  int row_idx = threadIdx.x + blockDim.x * blockIdx.x;
+  //check validity 
+  if(row_idx<rows){
+    //get output row coordinate 
+    //TODO: implement shared memory here 
+    int col_idx = threadIdx.y + blockDim.y * blockIdx.y;
+    if(col_idx<cols){
+    //for(int c=0; c<cols; c++){
+      //first apply thresholding, only do non max suppression for the point in middle level 
+      //whose response value exceed the threshold 
+      float response_value = tex2D<float>(map_mid,col_idx,row_idx);
+      //have warp divergence here, I think it cannot be avoided, since some thread have to execute the following 
+      //code to get min and max while others don't have to 
+      bool is_max = false;
+      bool is_min = false;
+      bool max_not_eq_min = false;
+      if(response_value>=threshold || response_value<=-threshold){
+	//typically, first several comparison will exclude the point to be extrema, 
+	//but here do full comparison any way for less divergence problem 
+        float max_low = find_max_in_3x3_window(map_low,row_idx,col_idx);
+        float max_mid = find_max_in_3x3_window(map_mid,row_idx,col_idx);
+        float max_up = find_max_in_3x3_window(map_up,row_idx,col_idx);
+        float min_low = find_min_in_3x3_window(map_low,row_idx,col_idx);
+        float min_mid = find_min_in_3x3_window(map_mid,row_idx,col_idx);
+        float min_up = find_min_in_3x3_window(map_up,row_idx,col_idx);
+	float maximum = fmaxf(fmaxf(max_low,max_mid),max_up);
+	float minimum = fminf(fminf(min_low,min_mid),min_up);
+	is_max = (maximum == response_value);
+	is_min = (minimum == response_value);
+	//if maximum equals to minimum, 3x3x3 response values are all the same, not extrema 
+	max_not_eq_min = (maximum != minimum);
+	//perform atomic write to keypoint array
+	if((is_max || is_min) && max_not_eq_min){
+	  int idx = atomicAdd(keypoints_idx,1);
+	  keypoints_x[idx-1] = col_idx * stride;
+	  keypoints_y[idx-1] = row_idx * stride;
+	}
+      }
+    }
+  }
+}
 
 void Octave::thresholdAndNonMaxSuppression()
 {
@@ -160,8 +216,12 @@ void Octave::thresholdAndNonMaxSuppression()
   dim3 block(block_dim_x,block_dim_y,1);
   dim3 grid(rows_/block_dim_x + 1,cols_/block_dim_y + 1,1);
   for(int l = 1; l<response_maps.size()-1; l++){
-    kernel_threshold_nonMaxSuppression<<<grid,block>>>(response_maps[l-1].texture_object(),response_maps[l].texture_object(),response_maps[l+1].texture_object(),response_maps[l].data(),rows_,cols_,response_maps[l].pitch_bytes(),threshold_);
+    kernel_threshold_nonMaxSuppression<<<grid,block>>>(response_maps[l-1].texture_object(),response_maps[l].texture_object(),response_maps[l+1].texture_object(),cuda_keypoints_x.get(),cuda_keypoints_y.get(),cuda_curr_idx.get(),rows_,cols_,threshold_,stride_);
     CudaCheckError();
   }
+  cudaDeviceSynchronize();
+  CudaSafeCall(cudaMemcpy(keypoints_x,cuda_keypoints_x.get(),MAX_NUM_KEY_POINTS * sizeof(float),cudaMemcpyDeviceToHost));
+  CudaSafeCall(cudaMemcpy(keypoints_y,cuda_keypoints_y.get(),MAX_NUM_KEY_POINTS * sizeof(float),cudaMemcpyDeviceToHost));
+  CudaSafeCall(cudaMemcpy(&keypoints_num,cuda_curr_idx.get(),sizeof(int),cudaMemcpyDeviceToHost));
 }
 }  
