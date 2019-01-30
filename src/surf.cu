@@ -67,4 +67,63 @@ void SURF::compIntegralImage(const CudaMat& img_in, const CudaMat& img_integral)
   compColIntegral<int> <<<block_row, grid_row>>>(img_integral.data(), img_integral.data(),img_integral.rows(), img_integral.cols(), img_integral.pitch_bytes());
   cudaDeviceSynchronize();
 }
+
+void SURF::allocateInputAndIntegralImage(){
+  //allocate input image memory on device 
+  cuda_img_in_.allocate();
+  cuda_img_in_.allocateArray();
+  //allocate integral image memory on device 
+  cuda_img_integral_.allocate();
+  cuda_img_integral_.allocateArray();
+  //set integral image's Texture object 
+  cudaTextureDesc texDesc;
+  memset(&texDesc, 0, sizeof(texDesc));
+  texDesc.addressMode[0]   = cudaAddressModeBorder;
+  texDesc.addressMode[1]   = cudaAddressModeBorder;
+  texDesc.filterMode       = cudaFilterModePoint;
+  texDesc.readMode         = cudaReadModeElementType;
+  texDesc.normalizedCoords = 0;
+  
+  //set texture object 
+  cuda_img_integral_.setTextureObjectInterface(texDesc);
+}
+
+void SURF::allocateOctaves(const vector<vector<int>>& filter_sizes, const vector<int>& strides){
+  //initialize octaves with specified filter size and stride 
+  for(int o=0; o<filter_sizes.size(); o++){
+    octaves_.push_back(Octave(rows_/strides[o],cols_/strides[o],strides[o],filter_sizes[o]));
+  }
+  //allocate memories for every octave 
+  for(int o=0; o<filter_sizes.size(); o++){
+    octaves_[o].allocateMemAndArray();//internally set the texture object 
+  }
+}
+
+void SURF::extractKeyPoints(Mat img_input){
+  //copy image to Device Memory 
+  cuda_img_in_.copyFromMat(img_input);
+  //compute integral image 
+  compIntegralImage(cuda_img_in_,cuda_img_integral_);
+  //copy integral image to texture memory 
+  cuda_img_integral_.copyToArray();
+  //fill all octaves with DoH response maps 
+  for(int o=0; o<octaves_.size();o++){
+    octaves_[o].fill(cuda_img_integral_);
+  }
+  for(int o=0; o<octaves_.size();o++){
+    octaves_[o].copyResponseMapsToArray();
+  }
+  for(int o=0; o<octaves_.size();o++){
+    octaves_[o].thresholdNonMaxSupAndFindKeyPoints(threshold_);
+  }
+  //copy keypoints 
+  for(int o=0; o<octaves_.size();o++){
+    for(int i=0; i<octaves_[o].keypoints_num; i++){
+      keypoints_.push_back(cv::Point2f(octaves_[o].keypoints_x[i],octaves_[o].keypoints_y[i]));
+    }
+  }
+}
+
+
+
 }

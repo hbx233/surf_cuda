@@ -23,6 +23,17 @@ void Octave::allocateMemAndArray()
     response_maps[i].allocate();
     response_maps[i].allocateArray();
   }
+  //set texture object 
+  cudaTextureDesc texDesc;
+  memset(&texDesc, 0, sizeof(texDesc));
+  texDesc.addressMode[0]   = cudaAddressModeClamp;//set the address mode to be Clamp for min max computation in sliding window
+  texDesc.addressMode[1]   = cudaAddressModeClamp;
+  texDesc.filterMode       = cudaFilterModePoint;
+  texDesc.readMode         = cudaReadModeElementType;
+  texDesc.normalizedCoords = 0;
+  for(int i=0; i<response_maps.size(); i++){
+    response_maps[i].setTextureObjectInterface(texDesc);
+  }
   //allocate KeyPoints Array 
   float* devPtr_x;
   float* devPtr_y;
@@ -62,16 +73,8 @@ void Octave::fill(const CudaMat& integral_mat){
 void Octave::copyResponseMapsToArray()
 {
   //copy response maps to their allocated and set the texture object 
-  cudaTextureDesc texDesc;
-  memset(&texDesc, 0, sizeof(texDesc));
-  texDesc.addressMode[0]   = cudaAddressModeClamp;//set the address mode to be Clamp for min max computation in sliding window
-  texDesc.addressMode[1]   = cudaAddressModeClamp;
-  texDesc.filterMode       = cudaFilterModePoint;
-  texDesc.readMode         = cudaReadModeElementType;
-  texDesc.normalizedCoords = 0;
   for(int i=0; i<response_maps.size(); i++){
     response_maps[i].copyToArray();
-    response_maps[i].setTextureObjectInterface(texDesc);
   }
 }
 
@@ -86,21 +89,6 @@ void Octave::readDoHResponseMap(vector< Mat >& images_cpu)
   //read device memory 
   for(int i=0; i<level_num_; i++){
     response_maps[i].copyToMat(images_cpu[i]);
-    cout<<"Computed Map result"<<endl;
-  }
-}
-
-void Octave::readDoHResponseMapAfterSupression(vector< Mat >& images_cpu)
-{
-  //allocate memory, assume the provided header is not always compatible with current image size  
-  images_cpu.clear();
-  images_cpu = vector<Mat>(level_num_-2);
-  for(int i=0; i<level_num_-2; i++){
-    images_cpu[i] = Mat::ones(rows_,cols_,CV_32F);
-  }
-  //read device memory 
-  for(int i=1; i<level_num_-1; i++){
-    response_maps[i].copyToMat(images_cpu[i-1]);
     cout<<"Computed Map result"<<endl;
   }
 }
@@ -208,7 +196,7 @@ __global__ void kernel_threshold_nonMaxSuppression(cudaTextureObject_t map_low, 
   }
 }
 
-void Octave::thresholdAndNonMaxSuppression()
+void Octave::thresholdNonMaxSupAndFindKeyPoints(const float& threshold)
 {
   //loop through all the middle level response maps in octave
   int block_dim_x = 32; //block size along row axis 
@@ -216,7 +204,7 @@ void Octave::thresholdAndNonMaxSuppression()
   dim3 block(block_dim_x,block_dim_y,1);
   dim3 grid(rows_/block_dim_x + 1,cols_/block_dim_y + 1,1);
   for(int l = 1; l<response_maps.size()-1; l++){
-    kernel_threshold_nonMaxSuppression<<<grid,block>>>(response_maps[l-1].texture_object(),response_maps[l].texture_object(),response_maps[l+1].texture_object(),cuda_keypoints_x.get(),cuda_keypoints_y.get(),cuda_curr_idx.get(),rows_,cols_,threshold_,stride_);
+    kernel_threshold_nonMaxSuppression<<<grid,block>>>(response_maps[l-1].texture_object(),response_maps[l].texture_object(),response_maps[l+1].texture_object(),cuda_keypoints_x.get(),cuda_keypoints_y.get(),cuda_curr_idx.get(),rows_,cols_,threshold,stride_);
     CudaCheckError();
   }
   cudaDeviceSynchronize();

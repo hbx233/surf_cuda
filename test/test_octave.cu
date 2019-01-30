@@ -97,9 +97,10 @@ int main(){
   gpu_timer.elapsedTimeStop();
   
   gpu_timer.elapsedTimeStart();
-  octave_1.thresholdAndNonMaxSuppression();
-  octave_2.thresholdAndNonMaxSuppression();
-  octave_3.thresholdAndNonMaxSuppression();
+  float threshold = 500;
+  octave_1.thresholdNonMaxSupAndFindKeyPoints(threshold);
+  octave_2.thresholdNonMaxSupAndFindKeyPoints(threshold);
+  octave_3.thresholdNonMaxSupAndFindKeyPoints(threshold);
   gpu_timer.elapsedTimeStop();
 #endif
   //read octave results

@@ -6,15 +6,17 @@
 #include "surf_cuda/DoH_filter.cuh"
 #include "surf_cuda/octave.h"
 
-
+#define NUM_OCTAVE
 namespace surf_cuda{
 class SURF{
 public:
+  using Ptr = shared_ptr<SURF>;
   SURF(){};
   SURF(const int& rows, const int& cols);  
 public:
   /*!
    * @brief Copy input image data from Mat object on host to CudaMat object whose memory is on Device 
+   */
   void copyInputImageToDevice(const Mat& img);
   /*!
    * @brief Launch CUDA kernels to compute integral image 
@@ -24,14 +26,18 @@ public:
    */
   void compIntegralImage(const CudaMat& img_in, const CudaMat& img_integral);
   
-  void fillOctaves();
-  void displayOctaves();
-public:
+  void extractKeyPoints(Mat img_input);
+private:
+  void allocateInputAndIntegralImage();
+  void allocateOctaves(const vector<vector<int>>& filter_sizes, const vector<int>& strides);
+private:
   int rows_;
   int cols_;
+  float threshold_{500};
   CudaMat cuda_img_in_;
   CudaMat cuda_img_integral_;
-  Octave octaves_[3];//Three octaves used in the surf 
+  vector<Octave> octaves_;//Three octaves used in the surf 
+  vector<cv::Point2f> keypoints_;
 };  
 }
 

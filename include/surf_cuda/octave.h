@@ -42,16 +42,10 @@ public:
   void readDoHResponseMap(vector<Mat>& images_cpu);
   
   /*!
-   * @brief helper function taht read gpu DoH result after thresholding and non-max supression to cpu mat 
+   * @brief do thresholding and non max suppression on DoH response maps
+   *        while atomically write founded keypoints to array 
    */
-  void readDoHResponseMapAfterSupression(vector<Mat>& images_cpu);
-  
-  /*!
-   * @brief do thresholding and non max suppression on DoH response maps 
-   */
-  void thresholdAndNonMaxSuppression();
-  
-  void findKeyPoints();
+  void thresholdNonMaxSupAndFindKeyPoints(const float& threshold);
   
   //number of levels(images) in the Octave
   int level_num_; 
@@ -60,7 +54,6 @@ public:
   int rows_;
   int cols_;
   int stride_;
-  float threshold_ = 400;
 public:
   vector<CudaMat> response_maps;//image levels
   vector<float> scales;//scales of every response map
