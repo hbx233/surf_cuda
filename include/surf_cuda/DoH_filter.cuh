@@ -343,6 +343,7 @@ struct DoHFilter{
    */
 #if USE_TEXTURE
   void compDoHResponseMap_texture(const CudaMat& img_integral, const CudaMat& img_doh_response, const DoHFilter& doh_filter, const int& stride);
+  void compDoHResponseMap_texture(const CudaMat& img_integral, const CudaMat& img_doh_response1,const CudaMat& img_doh_response2,const CudaMat& img_doh_response3,const CudaMat& img_doh_response4, const DoHFilter& doh_filter1,const DoHFilter& doh_filter2,const DoHFilter& doh_filter3,const DoHFilter& doh_filter4, const int& stride);
 
 #endif
 }

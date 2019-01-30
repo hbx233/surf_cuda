@@ -55,6 +55,24 @@ __global__ void kernel_DoH_Filter_texture(cudaTextureObject_t integral_tex, int 
       }
     }
 }
+__global__ void kernel_DoH_Filter_texture_4_output(cudaTextureObject_t integral_tex, int integral_rows, int integral_cols, unsigned char* response_mat1,unsigned char* response_mat2, unsigned char* response_mat3, unsigned char* response_mat4, size_t response_pitch_bytes, int response_rows, int response_cols, int stride, DoHFilter doh_filter1, DoHFilter doh_filter2, DoHFilter doh_filter3, DoHFilter doh_filter4){
+    //Just one kernel per row's computation 
+    int row_response_idx = threadIdx.y + blockDim.y * blockIdx.y;
+    if(row_response_idx<response_rows){
+      //response map's row pointer 
+      int col_response_idx = threadIdx.x + blockDim.x * blockIdx.x;
+      if(col_response_idx<response_cols){
+        float* row_response_addr1 = (float*)(response_mat1 + row_response_idx * response_pitch_bytes);
+        float* row_response_addr2 = (float*)(response_mat2 + row_response_idx * response_pitch_bytes);
+        float* row_response_addr3 = (float*)(response_mat3 + row_response_idx * response_pitch_bytes);
+        float* row_response_addr4 = (float*)(response_mat4 + row_response_idx * response_pitch_bytes);
+        row_response_addr1[col_response_idx] = doh_filter1(integral_tex, row_response_idx*stride, col_response_idx*stride, integral_rows, integral_cols); 
+        row_response_addr2[col_response_idx] = doh_filter2(integral_tex, row_response_idx*stride, col_response_idx*stride, integral_rows, integral_cols); 
+        row_response_addr3[col_response_idx] = doh_filter3(integral_tex, row_response_idx*stride, col_response_idx*stride, integral_rows, integral_cols); 
+        row_response_addr4[col_response_idx] = doh_filter4(integral_tex, row_response_idx*stride, col_response_idx*stride, integral_rows, integral_cols); 
+      }
+    }
+}
 
 
 void compDoHResponseMap_texture(const CudaMat& img_integral, const CudaMat& img_doh_response, const DoHFilter& doh_filter, const int& stride){
@@ -95,6 +113,49 @@ void compDoHResponseMap_texture(const CudaMat& img_integral, const CudaMat& img_
 	fprintf(stderr,"[CUDA] [DoH Filter] Incompatible integral image size, response map size and stride");
 	fprintf(stderr,"Integral Image in texture memory has %i rows, %i columns",img_integral.rows(), img_integral.cols());
 	fprintf(stderr,"Response Map has %i ros, %i columns",img_doh_response.rows(),img_doh_response.cols());
+      }
+  } else{
+    fprintf(stderr,"[CUDA] [DoH Filter] Incorrect Texture Object Type");
+  }
+}
+void compDoHResponseMap_texture(const CudaMat& img_integral, const CudaMat& img_doh_response1,const CudaMat& img_doh_response2,const CudaMat& img_doh_response3,const CudaMat& img_doh_response4, const DoHFilter& doh_filter1,const DoHFilter& doh_filter2,const DoHFilter& doh_filter3,const DoHFilter& doh_filter4, const int& stride){
+  //check texture object type
+  //texture object should be:
+  //1. In border addressing mode 
+  //2. Filter mode should be Point mode
+  //3. Unnormalized coordinate 
+  //4. cudaReadModeElementType Read mode, no type conversion 
+  //get CUDA texture descriptor 
+  cudaTextureDesc tex_desc = img_integral.texture_desc();
+  //get CUDA texture object's resource descriptor
+  cudaResourceDesc res_desc = img_integral.resource_desc();
+  cudaChannelFormatDesc channel_desc = img_integral.channel_desc();
+  if(
+    tex_desc.addressMode[0] == cudaAddressModeBorder &&
+    tex_desc.addressMode[1] == cudaAddressModeBorder &&
+    tex_desc.filterMode == cudaFilterModePoint &&
+    tex_desc.readMode == cudaReadModeElementType && 
+    tex_desc.normalizedCoords == 0 &&
+    res_desc.resType == cudaResourceTypeArray &&
+    channel_desc.f == cudaChannelFormatKindSigned &&
+    channel_desc.x == 32 &&
+    channel_desc.y == 0 && 
+    channel_desc.z == 0 &&
+    channel_desc.w == 0 )
+    {
+      //check if texture height and width are compatible with stride and response rows and cols 
+      if(img_integral.rows()/stride == img_doh_response1.rows() && img_integral.cols()/stride == img_doh_response2.cols()){
+	size_t block_dim_x = 32;
+	size_t block_dim_y = 32;
+        dim3 block(block_dim_x,block_dim_y,1);
+        dim3 grid(img_doh_response1.cols()/block_dim_x+1,img_doh_response1.rows()/block_dim_y + 1,1);
+        kernel_DoH_Filter_texture_4_output <<<grid,block>>> (img_integral.texture_object(),img_integral.rows(),img_integral.cols(),img_doh_response1.data(),img_doh_response2.data(),img_doh_response3.data(),img_doh_response4.data(), img_doh_response1.pitch_bytes(),img_doh_response1.rows(),img_doh_response1.cols(),stride, doh_filter1, doh_filter2, doh_filter3, doh_filter4);
+        CudaCheckError();
+        cudaDeviceSynchronize();
+      } else{
+	fprintf(stderr,"[CUDA] [DoH Filter] Incompatible integral image size, response map size and stride");
+	fprintf(stderr,"Integral Image in texture memory has %i rows, %i columns",img_integral.rows(), img_integral.cols());
+	fprintf(stderr,"Response Map has %i ros, %i columns",img_doh_response1.rows(),img_doh_response1.cols());
       }
   } else{
     fprintf(stderr,"[CUDA] [DoH Filter] Incorrect Texture Object Type");

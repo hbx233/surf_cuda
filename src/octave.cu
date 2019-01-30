@@ -62,9 +62,9 @@ void Octave::fill(const CudaMat& integral_mat){
   }
   if(valid){
     //compute response maps for every filter 
-    for(int i=0;i<level_num_;i++){
-      compDoHResponseMap_texture(integral_mat,response_maps[i],filters[i],stride_);
-    }
+    //for(int i=0;i<level_num_;i++){
+    compDoHResponseMap_texture(integral_mat,response_maps[0],response_maps[1],response_maps[2],response_maps[3],filters[0],filters[1],filters[2],filters[3],stride_);
+    //}
   } else{
     fprintf(stderr, "[CUDA] The input image size is not sompatible with current size and stride");
   }

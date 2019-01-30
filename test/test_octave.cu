@@ -133,7 +133,7 @@ int main(){
   
   cv::namedWindow("1");
   cv::imshow("1",img);
-  cv::imwrite("extracted_key_points2.png",img);
+  //cv::imwrite("extracted_key_points2.png",img);
   cv::waitKey(0);
 #if 0
   cv::imwrite("./image/octave_1_supression_1.png",normalize(octave_response_1[0])*255);
