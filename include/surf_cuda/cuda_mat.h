@@ -88,12 +88,25 @@ public:
   void copyFromMat(const Mat& mat);
   
   /*!
+   * @brief Wraper function that perform memory copy from Host Mat object to Device CudaMat Texture memory
+   * @param mat The Mat object that stores the data 
+   * @note The Mat object should have the same type as type_
+   */
+  void copyFromMatToArray(const Mat& mat);
+  
+  /*!
    * @brief Wraper function that perform memory copy from Device CudaMat to Host Mat object memory 
    * @param mat The Mat object that the data will copy to 
    * @note The Mat object should have the same type as type_
    */
    void copyToMat(Mat& mat);
    
+  /*!
+   * @brief Wraper function that perform memory copy from Device CudaMat Texture Memory to Host Mat object memory 
+   * @param mat The Mat object that the data will copy to 
+   * @note The Mat object should have the same type as type_
+   */
+   void copyToMatFromArray(Mat& mat);
    
 public:
   unsigned char* data() const;

@@ -15,10 +15,6 @@ public:
   SURF(const int& rows, const int& cols);  
 public:
   /*!
-   * @brief Copy input image data from Mat object on host to CudaMat object whose memory is on Device 
-   */
-  void copyInputImageToDevice(const Mat& img);
-  /*!
    * @brief Launch CUDA kernels to compute integral image 
    * @param img_in Reference to inpute img whose data is already allocated on device memory 
    * @param img_integral Reference to output integral image whose data is already allocated on device memory 

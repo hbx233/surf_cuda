@@ -55,9 +55,10 @@ int main(){
   CudaMat cuda_mat_out(rows,cols,CV_32S);
   //allocate two CudaMat
   cuda_mat_in.allocate();
+  cuda_mat_in.allocateArray();
   cuda_mat_out.allocate();
   //write data to in 
-  cuda_mat_in.copyFromMat(mat);
+  cuda_mat_in.copyFromMatToArray(mat);
   SURF surf;
   //compute integral image 
   surf.compIntegralImage(cuda_mat_in, cuda_mat_out);

@@ -43,6 +43,7 @@ int main(){
   CudaMat cuda_mat_in(rows,cols,CV_32S);
   CudaMat cuda_mat_integral(rows,cols,CV_32S);
   cuda_mat_in.allocate();
+  cuda_mat_in.allocateArray();
   cuda_mat_integral.allocate();
   cuda_mat_integral.allocateArray();
   //compute integral image 
@@ -61,7 +62,17 @@ int main(){
   //compute integral image
   //copy image from host to device 
   
-  cuda_mat_in.copyFromMat(mat_in);
+  cuda_mat_in.copyFromMatToArray(mat_in);
+  cudaTextureDesc texDesc_integral;
+  memset(&texDesc_integral, 0, sizeof(texDesc_integral));
+  texDesc_integral.addressMode[0]   = cudaAddressModeClamp;
+  texDesc_integral.addressMode[1]   = cudaAddressModeClamp;
+  texDesc_integral.filterMode       = cudaFilterModePoint;
+  texDesc_integral.readMode         = cudaReadModeElementType;
+  texDesc_integral.normalizedCoords = 0;
+  
+  //set texture object 
+  cuda_mat_in.setTextureObjectInterface(texDesc_integral);
   //compute integral image 
   gpu_timer.elapsedTimeStart();
   surf.compIntegralImage(cuda_mat_in,cuda_mat_integral);

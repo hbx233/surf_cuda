@@ -79,7 +79,7 @@ int main(){
   //inpute image 
   CudaMat cuda_mat_in(rows,cols,CV_32S);
   cuda_mat_in.allocate();
-  
+  cuda_mat_in.allocateArray(); 
   //integral_image 
   Mat mat_integral_cpu = Mat::zeros(rows,cols,CV_32S);
   Mat mat_integral_gpu = Mat::zeros(rows,cols,CV_32S);
@@ -88,7 +88,17 @@ int main(){
   cuda_mat_integral.allocateArray();
   
   //COPY IMAGE TO DEVICE
-  cuda_mat_in.copyFromMat(mat_in_cpu);
+  cuda_mat_in.copyFromMatToArray(mat_in_cpu);
+  cudaTextureDesc texDesc_integral;
+  memset(&texDesc_integral, 0, sizeof(texDesc_integral));
+  texDesc_integral.addressMode[0]   = cudaAddressModeClamp;
+  texDesc_integral.addressMode[1]   = cudaAddressModeClamp;
+  texDesc_integral.filterMode       = cudaFilterModePoint;
+  texDesc_integral.readMode         = cudaReadModeElementType;
+  texDesc_integral.normalizedCoords = 0;
+  
+  //set texture object 
+  cuda_mat_in.setTextureObjectInterface(texDesc_integral);
    
   SURF surf;
   

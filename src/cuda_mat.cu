@@ -179,11 +179,32 @@ void CudaMat::copyFromMat(const Mat& mat)
     exit(-1);
   }
 }
+
+void CudaMat::copyFromMatToArray(const Mat& mat)
+{
+  if(mat.type()==type_){
+    writeDeviceToArray((void*)mat.data, mat.step[0], mat.cols, mat.rows);
+  } else{
+    fprintf(stderr, "[CUDA] [Write Device] Mat type not compatible");
+    exit(-1);
+  }
+}
+
 void CudaMat::copyToMat(Mat& mat)
 {
   if(mat.type()==type_){
     mat = Mat(rows_, cols_, type_);
     readDevice((void*)mat.data, mat.step[0], mat.cols, mat.rows);
+  } else{
+    fprintf(stderr, "[CUDA] [Read device] Mat type not compatible");
+  }
+}
+
+void CudaMat::copyToMatFromArray(Mat& mat)
+{
+  if(mat.type()==type_){
+    mat = Mat(rows_, cols_, type_);
+    readDeviceFromArray((void*)mat.data, mat.step[0], mat.cols, mat.rows);
   } else{
     fprintf(stderr, "[CUDA] [Read device] Mat type not compatible");
   }
